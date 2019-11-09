@@ -8,7 +8,9 @@ import java.net.Socket;
 
 import bg.tu.varna.si.chat.model.Credentials;
 import bg.tu.varna.si.chat.model.request.Login;
-import bg.tu.varna.si.chat.model.request.UserRegisterRequest;
+import bg.tu.varna.si.chat.model.request.Logout;
+import bg.tu.varna.si.chat.model.request.Message;
+import bg.tu.varna.si.chat.model.response.LoginResponse;
 import bg.tu.varna.si.chat.model.response.Response;
 
 public class Client {
@@ -24,20 +26,55 @@ public class Client {
 	}
 
 	public void sendMessages() {
-
+		
+		/**
+		 * user1 sends message to offline user2
+		 */
 		try (Socket socket = new Socket(serverHost, serverPort);
 				ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 				ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
 
-			//Login login = new Login(new Credentials("Popi", "111"));
+			// login user1
+			Login login = new Login(new Credentials("user1", "111"));
+			objectOutputStream.writeObject(login);
+			LoginResponse loginResponse = (LoginResponse) objectInputStream.readObject();
+			System.out.println(loginResponse);
+			
+			// send message to user2
+			Message message = new Message("Hi!", "user2", loginResponse.getCurrentUser().getUserName());
+			objectOutputStream.writeObject(message);
+			Response messageResponse = (Response) objectInputStream.readObject();
+			System.out.println(messageResponse);
+			
+			// send logout
+			Logout logout = new Logout();
+			objectOutputStream.writeObject(logout);		
 
-			//objectOutputStream.writeObject(login);
-			//Response response = (Response) objectInputStream.readObject();
-			//System.out.println(response);
-			UserRegisterRequest register = new UserRegisterRequest("Bobo", "Boris", "Tishev", "Bobo", "123");
-			objectOutputStream.writeObject(register);
-			Response response = (Response) objectInputStream.readObject();
-			System.out.println(response);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		/**
+		 * user2 logs in and receives all offline messages
+		 */
+		try (Socket socket = new Socket(serverHost, serverPort);
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+				ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
+
+			// login user2
+			Login login = new Login(new Credentials("user2", "222"));
+			objectOutputStream.writeObject(login);
+			LoginResponse loginResponse = (LoginResponse) objectInputStream.readObject();
+			System.out.println(loginResponse);
+			
+			// send logout
+			Logout logout = new Logout();
+			objectOutputStream.writeObject(logout);		
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -47,41 +84,5 @@ public class Client {
 			e.printStackTrace();
 		}
 
-		// try {
-//			socket = new Socket(serverHost, serverPort);
-//			
-//			OutputStream output = socket.getOutputStream();
-//			ObjectOutputStream objectOutputStream = new ObjectOutputStream(output);
-//			Scanner userEntity = new Scanner(System.in);
-//			String userInput = "";
-//			String response = "";
-//			do {
-//				System.out.println("Enter message ('" + Constants.END_SESSION_STRING + "' to exit): ");
-//				userInput = userEntity.nextLine();
-//				Request request = new Message(userInput);
-//				
-//				objectOutputStream.writeObject(request);
-//				
-//				
-//				response = input.nextLine();
-//				System.out.println("Server> " + response);
-//
-//			} while (!Constants.END_SESSION_STRING.equalsIgnoreCase(message));
-//			input.close();
-//			userEntity.close();
-//
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} finally {
-//			try {
-//				System.out.println("Closing connection");
-//				socket.close();
-//
-//			} catch (IOException e) {
-//				System.out.println("Unable to disconect!");
-//				System.exit(1);
-//			}
-//
-//		}
 	}
 }

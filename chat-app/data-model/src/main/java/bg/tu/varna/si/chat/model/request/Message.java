@@ -4,13 +4,13 @@ public class Message extends Request {
 
 	private static final long serialVersionUID = 4141594803871656267L;
 	private String messageContent;
-	private String recieverName;
+	private String recipientName;
 	private String senderName;
 
-	public Message(String messageContent, String recieverName, String senderName) {
+	public Message(String messageContent, String recipientName, String senderName) {
 		super(RequestType.MESSAGE);
 		this.messageContent = messageContent;
-		this.recieverName = recieverName;
+		this.recipientName = recipientName;
 		this.senderName = senderName;
 	}
 
@@ -19,11 +19,24 @@ public class Message extends Request {
 	}
 
 	public String getRecieverName() {
-		return recieverName;
+		return recipientName;
 	}
 
 	public String getSenderName() {
 		return senderName;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Message [messageContent=");
+		builder.append(messageContent);
+		builder.append(", recipientName=");
+		builder.append(recipientName);
+		builder.append(", senderName=");
+		builder.append(senderName);
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

@@ -1,14 +1,17 @@
 package bg.tu.varna.si.chat.model.request;
 
-public class Message extends Request {
+public class MessageRequest extends Request {
 
 	private static final long serialVersionUID = 4141594803871656267L;
+	
 	private String messageContent;
+	
 	private String recipientName;
+	
 	private String senderName;
 
-	public Message(String messageContent, String recipientName, String senderName) {
-		super(RequestType.MESSAGE);
+	public MessageRequest(String messageContent, String recipientName, String senderName) {
+		super(RequestType.MESSAGE_REQUEST);
 		this.messageContent = messageContent;
 		this.recipientName = recipientName;
 		this.senderName = senderName;

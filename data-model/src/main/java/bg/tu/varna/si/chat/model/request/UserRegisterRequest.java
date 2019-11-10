@@ -1,17 +1,26 @@
 package bg.tu.varna.si.chat.model.request;
 
 public class UserRegisterRequest extends Request {
+
 	private static final long serialVersionUID = 1207781374734361920L;
 
 	private String userName;
+
 	private String firstName;
+
 	private String lastName;
+
 	private String displayName;
+
 	private String password;
 
-	public UserRegisterRequest(String userName, String firstName, String lastName, String displayName,
+	public UserRegisterRequest(
+			String userName, 
+			String firstName,
+			String lastName, 
+			String displayName, 
 			String password) {
-		super(RequestType.REGISTER);
+		super(RequestType.USER_REGISTER_REQUEST);
 		this.userName = userName;
 		this.firstName = firstName;
 		this.lastName = lastName;

@@ -7,9 +7,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import bg.tu.varna.si.chat.model.Credentials;
-import bg.tu.varna.si.chat.model.request.Login;
-import bg.tu.varna.si.chat.model.request.Logout;
-import bg.tu.varna.si.chat.model.request.Message;
+import bg.tu.varna.si.chat.model.request.LoginRequest;
+import bg.tu.varna.si.chat.model.request.LogoutRequest;
+import bg.tu.varna.si.chat.model.request.MessageRequest;
 import bg.tu.varna.si.chat.model.response.LoginResponse;
 import bg.tu.varna.si.chat.model.response.Response;
 
@@ -35,21 +35,24 @@ public class Client {
 				ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
 
 			// login user1
-			Login login = new Login(new Credentials("user1", "111"));
+			LoginRequest login = new LoginRequest(new Credentials("user1", "111"));
 			objectOutputStream.writeObject(login);
+			
+		
 			LoginResponse loginResponse = (LoginResponse) objectInputStream.readObject();
 			System.out.println(loginResponse);
 			
 			// send message to user2
-			Message message = new Message("Hi!", "user2", loginResponse.getCurrentUser().getUserName());
+			MessageRequest message = new MessageRequest("Hi!", "user2", loginResponse.getCurrentUser().getUserName());
 			objectOutputStream.writeObject(message);
 			Response messageResponse = (Response) objectInputStream.readObject();
 			System.out.println(messageResponse);
 			
 			// send logout
-			Logout logout = new Logout();
-			objectOutputStream.writeObject(logout);		
-
+			LogoutRequest logout = new LogoutRequest();
+			objectOutputStream.writeObject(logout);	
+			
+						
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -57,6 +60,7 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		
 		
 		/**
@@ -67,13 +71,13 @@ public class Client {
 				ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
 
 			// login user2
-			Login login = new Login(new Credentials("user2", "222"));
+			LoginRequest login = new LoginRequest(new Credentials("user2", "222"));
 			objectOutputStream.writeObject(login);
 			LoginResponse loginResponse = (LoginResponse) objectInputStream.readObject();
 			System.out.println(loginResponse);
 			
 			// send logout
-			Logout logout = new Logout();
+			LogoutRequest logout = new LogoutRequest();
 			objectOutputStream.writeObject(logout);		
 
 		} catch (IOException e) {

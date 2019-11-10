@@ -20,9 +20,10 @@ public class LoginResponse extends Response {
 		this.activeUsers = activeUsers;
 		this.inactiveUsers = inactiveUsers;
 	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	
+	@Override
+	public ResponseType getResponseType() {
+		return ResponseType.LOGIN;
 	}
 
 	public User getCurrentUser() {

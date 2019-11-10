@@ -1,15 +1,25 @@
-package bg.tu.varna.si.chat.server;
+package bg.tu.varna.si.chat.server.db.entity;
 
-public class UserData {
+public class UserEntity {
+
 	private int ID;
+
 	private String userName;
+
 	private String firstName;
+
 	private String lastName;
+
 	private String displayName;
+
 	private String password;
 
-	public UserData(String userName, String firstName, String lastName, String displayName, String password) {
-		super();
+	public UserEntity(
+			String userName, 
+			String firstName, 
+			String lastName, 
+			String displayName, 
+			String password) {
 		this.userName = userName;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -17,8 +27,9 @@ public class UserData {
 		this.password = password;
 	}
 
-	public UserData() { }
-	
+	public UserEntity() { 
+
+	}
 
 	public int getID() {
 		return ID;

@@ -2,12 +2,13 @@ package bg.tu.varna.si.chat.server;
 
 import bg.tu.varna.si.chat.model.User;
 import bg.tu.varna.si.chat.model.request.UserRegisterRequest;
+import bg.tu.varna.si.chat.server.db.entity.UserEntity;
 
 
 public class UserConverter {
 	
-	public static UserData createUserData(UserRegisterRequest request) {
-		UserData data = new UserData();
+	public static UserEntity createUserData(UserRegisterRequest request) {
+		UserEntity data = new UserEntity();
 		
 		data.setDisplayName(request.getDisplayName());
 		data.setFirstName(request.getFirstName());
@@ -18,7 +19,7 @@ public class UserConverter {
 		return data;
 	}
 	
-	public static User createUser(UserData userData) {
+	public static User createUser(UserEntity userData) {
 		User user = new User();
 		
 		user.setUserName(userData.getUserName());

@@ -36,14 +36,16 @@
                   <Region HBox.hgrow="ALWAYS" />
                   <VBox>
                      <children>
-                        <Label text="First name:" />
-                        <TextField fx:id="firstNameField"/>
-                        <Label text="Last name:" />
-                        <TextField fx:id="lastNameField"/>
                         <Label text="Username:" />
-                        <TextField fx:id="userNameField"/>
+                        <TextField fx:id="userNameField" />
+                        <Label text="First name:" />
+                        <TextField fx:id="firstNameField" />
+                        <Label text="Last name:" />
+                        <TextField fx:id="lastNameField" />
+                        <Label text="Display name:" />
+                        <TextField fx:id="displayNameField" />
                         <Label text="Password:" />
-                        <PasswordField fx:id="passwordField"/>
+                        <PasswordField fx:id="passwordField" />
                      </children>
                   </VBox>
                   <Region HBox.hgrow="ALWAYS" />

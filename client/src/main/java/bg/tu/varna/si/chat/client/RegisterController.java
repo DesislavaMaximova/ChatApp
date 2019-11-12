@@ -14,13 +14,16 @@ import javafx.stage.Window;
 public class RegisterController {
 
 		@FXML
+		private TextField userNameField;
+		
+		@FXML
 	    private TextField firstNameField;
 
 	    @FXML
 	    private TextField lastNameField;
 
 	    @FXML
-	    private TextField userNameField;
+	    private TextField displayNameField;
 
 	    @FXML
 	    private PasswordField passwordField;
@@ -36,26 +39,33 @@ public class RegisterController {
 
 	        Window owner = registerButton.getScene().getWindow(); 
 	        
+	        System.out.println(userNameField.getText());
 	        System.out.println(firstNameField.getText());
 	        System.out.println(lastNameField.getText());
-	        System.out.println(userNameField.getText());
+	        System.out.println(displayNameField.getText());
 	        System.out.println(passwordField.getText());
+	        
+	        if (userNameField.getText().isEmpty()) {
+	            showAlert(Alert.AlertType.ERROR, owner, "Form Error!",
+	                "Please enter username");
+	            return;
+	        }
 
 	       if (firstNameField.getText().isEmpty()) {
 	            showAlert(Alert.AlertType.ERROR, owner, "Form Error!",
-	                "Please enter your firstname");
+	                "Please enter your first name");
 	            return;
 	        }
 	        
 	        if (lastNameField.getText().isEmpty()) {
 	            showAlert(Alert.AlertType.ERROR, owner, "Form Error!",
-	                "Please enter your lastname");
+	                "Please enter your last name");
 	            return;
 	        }
 
-	        if (userNameField.getText().isEmpty()) {
+	        if (displayNameField.getText().isEmpty()) {
 	            showAlert(Alert.AlertType.ERROR, owner, "Form Error!",
-	                "Please enter your username");
+	                "Please enter your dysplay name");
 	            return;
 	        }
 	        

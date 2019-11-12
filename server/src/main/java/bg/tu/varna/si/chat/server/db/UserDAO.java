@@ -3,6 +3,7 @@ package bg.tu.varna.si.chat.server.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +22,8 @@ public class UserDAO {
 	private static final String DATABASE_PASSWORD = "Estatiev95";
 
 	private static final String INSERT_QUERY = "INSERT INTO account (userName,firstName, lastName, displayName, password) VALUES (?, ?, ?, ?, ?)";
+	//login
+	private static final String SELECT_QUERY = "SELECT * FROM account WHERE username = ? and password = ?";
 
 	private static UserDAO INSTANCE_HOLDER;
 
@@ -59,7 +62,36 @@ public class UserDAO {
 		}
 
 	}
+	//=========================== login =====================================
+	public boolean validate(String username, String password) throws SQLException {
 
+        // Step 1: Establishing a Connection and 
+        // try-with-resource statement will auto close the connection.
+    	
+        try (Connection connection = DriverManager
+            .getConnection(DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD);
+
+            // Step 2:Create a statement using connection object
+            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_QUERY)) {
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+
+            System.out.println(preparedStatement);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+
+
+        } catch (SQLException e) {
+            // print SQL exception information
+            printSQLException(e);
+        }
+        return false;
+    }
+	//=======================================================================
+	
 	public Collection<UserEntity> getAllUsers() {
 		return users.values();
 	}

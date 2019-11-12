@@ -16,8 +16,8 @@ import javafx.stage.Window;
 
 import java.sql.SQLException;
 
-import bg.tu.varna.si.chat.client.JdbcLoginDao;
-
+//import bg.tu.varna.si.chat.client.JdbcLoginDao;
+import bg.tu.varna.si.chat.server.db.UserDAO;
 
 public class LoginController {
 
@@ -68,9 +68,11 @@ public class LoginController {
 
         String username = userNameField.getText();
         String password = passwordField.getText();
-		JdbcLoginDao jdbcDao = new JdbcLoginDao();
-        boolean flag = jdbcDao.validate(username, password);
-
+		//JdbcLoginDao jdbcDao = new JdbcLoginDao();
+        //=================================================================================
+        UserDAO userDao = UserDAO.getInstance();
+        boolean flag = userDao.validate(username, password);
+        //=================================================================================
         if (!flag) {
             infoBox("Please enter correct Username and Password", null, "Failed");
         } else {

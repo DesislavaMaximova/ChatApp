@@ -1,16 +1,21 @@
 package bg.tu.varna.si.chat.server.db;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
+import javax.persistence.NoResultException;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 
 import bg.tu.varna.si.chat.server.db.entity.UserEntity;
 
 public class UserDAO {
 
-	private static Map<String, UserEntity> users = createUsers();
-	
 	private static UserDAO INSTANCE_HOLDER;
+	
+	private SessionFactory sessionFactory =  new Configuration().configure().buildSessionFactory();
 	
 	private UserDAO() {
 		
@@ -25,29 +30,35 @@ public class UserDAO {
 	}
 
 	public Collection<UserEntity> getAllUsers() {
-		return users.values();
+		try (Session session = sessionFactory.openSession() ) {
+			return session.createQuery("from UserEntity", UserEntity.class).list();
+		}
 	}
 	
 	public UserEntity getUserEntity(String username) {
-		return users.get(username);
+		try (Session session = sessionFactory.openSession() ) {
+			return session.createQuery("from UserEntity where userName = :userName", UserEntity.class)
+					.setParameter("userName", username).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
 	}
 
 	public void addUserEntity(UserEntity userEntity) {
-		users.put(userEntity.getUserName(), userEntity);
-	}
 
-	public static Map<String, UserEntity> createUsers() {
-		UserEntity user1 = new UserEntity("user1", "Loo", "Smith", "Popi", "111");
-		UserEntity user2 = new UserEntity("user2", "Doo", "Boo", "PPP", "222");
-		UserEntity user3 = new UserEntity("user3", "Dee", "Fee", "Fee", "333");
-
-		Map<String, UserEntity> users = new HashMap<String, UserEntity>();
-
-		users.put(user1.getUserName(), user1);
-		users.put(user2.getUserName(), user2);
-		users.put(user3.getUserName(), user3);
-
-		return users;
+		Transaction transaction = null;
+		
+		try (Session session = sessionFactory.openSession()) {
+			transaction = session.beginTransaction();
+			session.save(userEntity);
+			
+			transaction.commit();
+			
+		} catch (Exception e) {
+			transaction.rollback();
+			e.printStackTrace();
+		} 
+		
 	}
 
 }

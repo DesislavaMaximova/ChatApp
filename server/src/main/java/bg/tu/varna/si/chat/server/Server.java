@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import bg.tu.varna.si.chat.server.db.UserDAO;
+
 public class Server {
 
 	private static final int PORT = 1300;
@@ -11,6 +13,8 @@ public class Server {
 	public void startServer() throws IOException {
 		
 		try (ServerSocket server = new ServerSocket(PORT)) {
+			
+			UserDAO.getInstance();
 			
 			System.out.println("Server started. Listening on port " + PORT);
 			

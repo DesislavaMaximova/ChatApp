@@ -1,8 +1,18 @@
 package bg.tu.varna.si.chat.server.db.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "USER" )
 public class UserEntity {
 
-	private int ID;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private int id;
 
 	private String userName;
 
@@ -32,7 +42,7 @@ public class UserEntity {
 	}
 
 	public int getID() {
-		return ID;
+		return id;
 	}
 
 	public String getUserName() {

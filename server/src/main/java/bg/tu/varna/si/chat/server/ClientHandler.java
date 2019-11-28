@@ -37,21 +37,7 @@ public class ClientHandler implements Runnable {
 		}
 	}
 
-	//	@Override
-	//	public void run() {
-	//
-	//		//		// 1. process LoginRequest or RegisterRequest
-	//		//		Response response = init();
-	//		//		sendReponse(response);
-	//		//
-	//		//		if (ResponseType.ERROR == response.getResponseType()) {
-	//		//			shutdown();
-	//		//		}
-	//
-	//		// 2. process any other request until LogoutRequest is received
-	//		processClientRequests();
-	//
-	//	}
+
 
 	public void sendRequest(Request request) {
 		try {
@@ -61,33 +47,7 @@ public class ClientHandler implements Runnable {
 		}
 	}
 
-	//	private Response init() {
-	//
-	//		Request request = readRequest();
-	//
-	//		if (RequestType.LOGIN == request.getRequestType()) {
-	//			return processLogin((Login) request);
-	//		}
-	//
-	//		if (RequestType.REGISTER == request.getRequestType()) {
-	//			return processRegistration((UserRegisterRequest) request);
-	//		}
-	//
-	//		return new ErrorResponse(ErrorType.UNEXPECTED_REQUEST,
-	//				"Expecting login or register request, but received " + request.getRequestType());
-	//	}
-	//
-	//
-	//
-	//
-	//
-	//	private void sendReponse(Response response) {
-	//		try {
-	//			outputStream.writeObject(response);
-	//		} catch (IOException e) {
-	//			throw new IllegalStateException("Failed writing object in outputstream", e);
-	//		}
-	//	}
+
 
 	@Override
 	public void run() {

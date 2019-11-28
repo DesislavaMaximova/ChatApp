@@ -2,8 +2,20 @@ package bg.tu.varna.si.chat.server.db.entity;
 
 import java.util.Date;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "MESSAGE")
 public class MessageEntity {
 	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
+		
 	private String sender;
 	
 	private String recipient;

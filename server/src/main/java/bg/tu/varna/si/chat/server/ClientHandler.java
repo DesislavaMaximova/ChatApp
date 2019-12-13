@@ -11,6 +11,7 @@ import bg.tu.varna.si.chat.model.response.ErrorResponse;
 import bg.tu.varna.si.chat.model.response.ErrorType;
 import bg.tu.varna.si.chat.model.response.LoginResponse;
 import bg.tu.varna.si.chat.model.response.Response;
+import bg.tu.varna.si.chat.model.response.ResponseType;
 import bg.tu.varna.si.chat.server.exception.IllegalRequestException;
 import bg.tu.varna.si.chat.server.exception.UnsupportedRequestException;
 import bg.tu.varna.si.chat.server.handler.RequestHandlerFactory;
@@ -47,8 +48,6 @@ public class ClientHandler implements Runnable {
 		}
 	}
 
-
-
 	@Override
 	public void run() {
 		Request request = null;
@@ -65,7 +64,7 @@ public class ClientHandler implements Runnable {
 					ClientRegistry.getInstance().logUserIn(userName, this);
 				}
 
-				if (userName == null ) {
+				if (userName == null && ResponseType.ERROR != response.getResponseType() ) {
 					throw new IllegalRequestException(ErrorType.UNEXPECTED_REQUEST, 
 							"Expecting login or register request, but received [" + request.getRequestType() + "]");
 				}
@@ -78,7 +77,7 @@ public class ClientHandler implements Runnable {
 
 			writeResponse(response);
 
-		} while (RequestType.LOGOUT_REQUEST != request.getRequestType());
+		} while (request != null &&	RequestType.LOGOUT_REQUEST != request.getRequestType());
 
 		ClientRegistry.getInstance().logUserOut(userName);
 		shutdown();
@@ -86,28 +85,29 @@ public class ClientHandler implements Runnable {
 
 
 	private Request readRequest() {
+		Request request = null;
 		try {
-			Request request = (Request) inputStream.readObject();
+			request = (Request) inputStream.readObject();
 			System.out.println("Received: " + request);
-
-			return request;
 		} catch (ClassNotFoundException | IOException e) {
-			throw new IllegalStateException("Failed reading request.");
+			System.err.println("Failed reading request: " + e.getLocalizedMessage());
 		}
+		
+		return request;
 	}
 
 	private void writeResponse(Response response) {
 		try {
 			outputStream.writeObject(response);
 		} catch (IOException e) {
-			System.out.println("Failed writing response..." + e.getLocalizedMessage());
+			System.err.println("Failed writing response: " + e.getLocalizedMessage());
 		}
 	}
 
 	private void shutdown() {
 		try {
 			if (socket != null) {
-				System.out.println("Closing down connection!");
+				System.out.println("Closing down connection for user [" + userName + "]");
 				socket.close();
 			}
 		} catch (IOException e) {

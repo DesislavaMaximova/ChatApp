@@ -54,6 +54,8 @@ public class UserDAO {
 			
 			transaction.commit();
 			
+			System.out.println("Saved user: " + userEntity.getUserName());
+			
 		} catch (Exception e) {
 			transaction.rollback();
 			e.printStackTrace();

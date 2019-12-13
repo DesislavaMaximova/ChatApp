@@ -59,7 +59,7 @@
                      <graphic>
                         <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../Image/attach+file+24px-131985216809862205_24.png" />
+                              <Image url="@attach.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -68,7 +68,7 @@
                      <graphic>
                         <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../Image/send-button.png" />
+                              <Image url="@send-button.png" />
                            </image>
                         </ImageView>
                      </graphic>

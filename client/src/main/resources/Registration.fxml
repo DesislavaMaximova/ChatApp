@@ -14,7 +14,7 @@
             <Region HBox.hgrow="ALWAYS" />
             <ImageView fitHeight="97.0" fitWidth="168.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@register.png" />
+                  <Image url="@register.jpg" />
                </image>
             </ImageView>
             <Region HBox.hgrow="ALWAYS" />

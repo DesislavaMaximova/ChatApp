@@ -19,7 +19,7 @@ public class ClientLauncher extends Application {
 		try {
 
 			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(getClass().getResource("/Login.fxml"));
+			loader.setLocation(getClass().getResource("/ChatFrame.fxml"));
 			BorderPane root = (BorderPane) loader.load();
 			Scene scene = new Scene(root, 600, 400);
 			primaryStage.setTitle("User LogIn");

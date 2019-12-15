@@ -1,5 +1,8 @@
 package bg.tu.varna.si.chat.client.form;
 
+import java.net.URL;
+import java.util.ResourceBundle;
+
 import bg.tu.varna.si.chat.client.Client;
 import bg.tu.varna.si.chat.model.request.MessageRequest;
 import bg.tu.varna.si.chat.model.response.ErrorResponse;
@@ -8,6 +11,7 @@ import bg.tu.varna.si.chat.model.response.ResponseType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -19,7 +23,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-public class ChatFrameController extends BaseForm{
+public class ChatFrameController extends BaseForm implements Initializable{
 
 	@FXML
 	private TextArea messageArea;
@@ -43,8 +47,40 @@ public class ChatFrameController extends BaseForm{
 	Stage window;
 	
 	@FXML
-	TreeView<String> friendsList;
+	private TreeView<String> friendsList;
 	
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+		//root of the tree
+		TreeItem<String> rootItem = new TreeItem<>("Root");
+		rootItem.setExpanded(true);
+		//online branch and its children
+		TreeItem<String> online = makeBranch("Online", rootItem);
+		makeBranch("user1", online);
+		makeBranch("user2", online);
+		makeBranch("user2", online);
+		//offline branch and its children
+		TreeItem<String> offline = makeBranch("Offline", rootItem);
+		makeBranch("user3", offline);
+		makeBranch("user4", offline);
+
+
+		online.setExpanded(true);
+		offline.setExpanded(true);
+
+		//create tree and hide root item
+		friendsList.setRoot(rootItem);
+		friendsList.setShowRoot(false);
+		
+		
+	}
+	//Create branches
+			private TreeItem<String> makeBranch(String title, TreeItem<String> parent) {
+				TreeItem<String> item = new TreeItem<>(title);
+				item.setExpanded(true);
+				parent.getChildren().add(item);
+				return item;
+			}
 	
 	
 	public void start(Stage stage) {
@@ -54,61 +90,15 @@ public class ChatFrameController extends BaseForm{
 		stage = new Stage();
 		Scene scene = new Scene(root);
 		window.setTitle("DNK Messenger");
-		window.setScene(scene);
-	
-		// friends list
-		TreeItem<String> rootItem, uOnline, uOffline;
-		//Root of the TreeView
-		rootItem = new TreeItem<>("RootItem");
-		rootItem.setExpanded(true);
-		
-		//Online branch
-		uOnline = makeBranch("Online", rootItem); //needs to be dynamic and get user list
-		makeBranch("User1", uOnline);
-		makeBranch("User2", uOnline);
-		makeBranch("User3", uOnline);
-		//makeBranch(user.getDisplayName(), online);
-//I		//makeBranch(user.getDisplayName(), online);
-		//makeBranch(user.getDisplayName(), online);
-		
-		//Offline branch
-		uOffline = makeBranch("Offline", rootItem);
-		makeBranch("OfflineUser1", uOffline);
-		makeBranch("OfflineUser2", uOffline);
-		makeBranch("OfflineUser3", uOffline);
-		
-		//Create tree
-		friendsList.getRoot();
-		friendsList.setShowRoot(false);
-		//root.getChildren().addAll();
-		
-	/*	TreeItem<String> rootItem = new TreeItem<>("Root");
-		TreeItem<String> uOnline = new TreeItem<>("Online");
-		TreeItem<String> uOffline = new TreeItem<>("Offline");
-		rootItem.getChildren().addAll(uOnline, uOffline);
-II		TreeItem<String> user1 = new TreeItem<>("User1");
-		TreeItem<String> user2 = new TreeItem<>("User2");
-		uOnline.getChildren().addAll(user1, user2);
-		TreeItem<String> user3 = new TreeItem<>("User3");
-		TreeItem<String> user4 = new TreeItem<>("User4");
-		uOffline.getChildren().addAll(user3, user4);
-		friendsList.setRoot(rootItem);
-	*/
-		
-		
+		window.setScene(scene);	
 		window.show();
+		
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
 	
 	}
-	//Create branches
-	private TreeItem<String> makeBranch(String title, TreeItem<String> parent) {
-		TreeItem<String> item = new TreeItem<>(title);
-		item.setExpanded(true);
-		parent.getChildren().add(item);
-		return item;
-	}
+	
 	
 	@FXML
 	protected void sendFileButtonClicked(ActionEvent event) throws Exception {
@@ -128,4 +118,5 @@ II		TreeItem<String> user1 = new TreeItem<>("User1");
 			return;
 		}
 	}
+	
 }

@@ -20,6 +20,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -117,6 +118,14 @@ public class ChatFrameController extends BaseForm implements Initializable{
 			alert(AlertType.ERROR, "Error", errorResponse.getErrorMessage());
 			return;
 		}
+	}
+	
+	@FXML
+	protected void selectedItem(MouseEvent event) {
+		//selected item from TreeView
+		TreeItem<String> item = friendsList.getSelectionModel().getSelectedItem();
+		//logic here
+		messageArea.appendText(item.getValue().toString() + "\n");//this is only an example to see if it even works
 	}
 	
 }

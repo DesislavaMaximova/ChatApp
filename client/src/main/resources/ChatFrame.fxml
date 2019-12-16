@@ -23,7 +23,7 @@
                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                      </VBox.margin>
                   </HBox>
-                  <TreeView fx:id="friendsList" prefHeight="541.0" prefWidth="182.0" VBox.vgrow="ALWAYS" />
+                  <TreeView fx:id="friendsList" onContextMenuRequested="#selectedItem" onMouseClicked="#selectedItem" prefHeight="541.0" prefWidth="182.0" VBox.vgrow="ALWAYS" />
                </children>
                <padding>
                   <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />

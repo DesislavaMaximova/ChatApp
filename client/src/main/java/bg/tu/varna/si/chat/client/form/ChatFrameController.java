@@ -13,9 +13,7 @@ import bg.tu.varna.si.chat.model.response.Response;
 import bg.tu.varna.si.chat.model.response.ResponseType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -24,10 +22,11 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class ChatFrameController extends BaseForm implements Initializable {
+
+	
 
 	@FXML
 	private TextArea messageArea;
@@ -117,36 +116,14 @@ public class ChatFrameController extends BaseForm implements Initializable {
 			return;
 		}
 	}
-<<<<<<< HEAD
-	@FXML
-	protected void selectedItem(MouseEvent event) {
-		//selected item from TreeView
-		TreeItem<String> item = friendsList.getSelectionModel().getSelectedItem();
-		try {
-			
 
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ChatFrame.fxml"));
-			BorderPane root = (BorderPane) fxmlLoader.load();
-			stage = new Stage();
-			Scene scene = new Scene(root);
-			stage.setTitle("DNK Messenger: " + UsersRegistry.getInstance().getCurrentUser().getDisplayName());
-			stage.setScene(scene);
-			stage.show();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		//logic here
-		messageArea.appendText(item.getValue().toString() + "\n");//this is only an example to see if it even works
-	}
-=======
-	
 	@FXML
 	protected void selectedItem(MouseEvent event) {
 		//selected item from TreeView
+		
 		TreeItem<String> item = friendsList.getSelectionModel().getSelectedItem();
-		//logic here
+		
+			
 		messageArea.appendText(item.getValue().toString() + "\n");//this is only an example to see if it even works
 	}
-	
->>>>>>> branch 'database_with_hibernate' of https://github.com/DesislavaMaximova/ChatApp.git
 }

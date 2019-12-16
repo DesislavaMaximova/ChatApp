@@ -117,6 +117,7 @@ public class ChatFrameController extends BaseForm implements Initializable {
 			return;
 		}
 	}
+<<<<<<< HEAD
 	@FXML
 	protected void selectedItem(MouseEvent event) {
 		//selected item from TreeView
@@ -137,4 +138,15 @@ public class ChatFrameController extends BaseForm implements Initializable {
 		//logic here
 		messageArea.appendText(item.getValue().toString() + "\n");//this is only an example to see if it even works
 	}
+=======
+	
+	@FXML
+	protected void selectedItem(MouseEvent event) {
+		//selected item from TreeView
+		TreeItem<String> item = friendsList.getSelectionModel().getSelectedItem();
+		//logic here
+		messageArea.appendText(item.getValue().toString() + "\n");//this is only an example to see if it even works
+	}
+	
+>>>>>>> branch 'database_with_hibernate' of https://github.com/DesislavaMaximova/ChatApp.git
 }

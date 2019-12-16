@@ -1,13 +1,20 @@
 package bg.tu.varna.si.chat.server.db;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
 
-import bg.tu.varna.si.chat.model.request.FileTransferRequest;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+import bg.tu.varna.si.chat.model.request.FileContentRequest;
 import bg.tu.varna.si.chat.server.db.entity.FileEntity;
 
 public class FileDAO {
-	private List <FileEntity> fileTransfer = new LinkedList <FileEntity> ();
+
+	
+	private SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+
 
 	private static FileDAO INSTANCE_HOLDER;
 
@@ -21,34 +28,33 @@ public class FileDAO {
 		}
 		return INSTANCE_HOLDER;
 	}
-	
-	public void storeFile(FileTransferRequest file, boolean delivered) {
-		FileEntity fileEntity = new FileEntity ();
-		
-		
-		fileEntity.setRecipient(file.getRecipientName());
-		fileEntity.setSender(file.getSenderName());
-		fileEntity.setSize(file.getSize());
-		fileEntity.setTimeStamp(file.getTimeStamp());
-		
-		fileTransfer.add(fileEntity);
-	}
-	 
-	public List <FileTransferRequest> getUndeliveredFiles (String username){
-		List <FileTransferRequest> undeliveredFiles = new LinkedList <FileTransferRequest>();
-		
-		for (FileEntity entity : fileTransfer) {
-			if (entity.getRecipient().equals(username) && !entity.isDelivered()) {
-				new FileTransferRequest(entity.getRecipient(), entity.getSender(),
-						entity.getFileName(), entity.getSize());
-				
-			}
 
+	public Collection<FileEntity> getFile(String fileName) {
+
+		try (Session session = sessionFactory.openSession()) {
+			return session.createQuery("from FileEntity where fileName = :fileName", FileEntity.class)
+					.list();
 		}
-		
-		return undeliveredFiles;
-		
 	}
-	
+
+
+	public void storeFile(FileContentRequest file) {
+
+		Transaction transaction = null;
+		try (Session session = sessionFactory.openSession()) {
+			transaction = session.beginTransaction();
+			FileEntity fileEntity = new FileEntity(); 
+			fileEntity.setRecipient(file.getRecipient());
+			fileEntity.setSender(file.getSender());
+			fileEntity.setContent(file.getContent());
+			fileEntity.setFileName(file.getFileName());
+
+			transaction.commit();
+
+		} catch (Exception e) {
+			transaction.rollback();
+			e.printStackTrace();
+		}
+	}
 
 }

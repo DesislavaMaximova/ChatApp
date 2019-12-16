@@ -1,7 +1,5 @@
 package bg.tu.varna.si.chat.server.db.entity;
 
-import java.util.Date;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,19 +11,16 @@ public class FileEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+	
 	private String recipient;
 
 	private String sender;
 
-	private String content;
+	private byte [] content;
 	
 	private String fileName;
 
-	private int size;
 
-	private Date timeStamp;
-
-	private Boolean delivered;
 
 	public FileEntity() {
 
@@ -54,36 +49,14 @@ public class FileEntity {
 		this.sender = sender;
 	}
 
-	public String getContent() {
+	public byte[] getContent() {
 		return content;
 	}
 
-	public void setContent(String content) {
+	public void setContent(byte[] content) {
 		this.content = content;
 	}
 
-	public int getSize() {
-		return size;
-	}
 
-	public void setSize(int i) {
-		this.size = i;
-	}
-
-	public Date getTimeStamp() {
-		return timeStamp;
-	}
-
-	public void setTimeStamp(Date timeStamp) {
-		this.timeStamp = timeStamp;
-	}
-
-	public Boolean isDelivered() {
-		return delivered;
-	}
-
-	public void setDelivered(Boolean delivered) {
-		this.delivered = delivered;
-	}
 
 }

@@ -10,15 +10,12 @@ public class LoginResponse extends Response {
 
 	private User currentUser;
 	
-	private Collection<User> activeUsers;
+	private Collection<User> users;
 	
-	private Collection<User> inactiveUsers;
-	
-	public LoginResponse(User currentUser, Collection<User> activeUsers, Collection<User> inactiveUsers) {
+	public LoginResponse(User currentUser, Collection<User> users) {
 		super(ResponseType.LOGIN);
 		this.currentUser = currentUser;
-		this.activeUsers = activeUsers;
-		this.inactiveUsers = inactiveUsers;
+		this.users = users;
 	}
 	
 	@Override
@@ -30,12 +27,8 @@ public class LoginResponse extends Response {
 		return currentUser;
 	}
 
-	public Collection<User> getActiveUsers() {
-		return activeUsers;
-	}
-
-	public Collection<User> getInactiveUsers() {
-		return inactiveUsers;
+	public Collection<User> getUsers() {
+		return users;
 	}
 
 	@Override
@@ -43,10 +36,8 @@ public class LoginResponse extends Response {
 		StringBuilder builder = new StringBuilder();
 		builder.append("LoginResponse [currentUser=");
 		builder.append(currentUser);
-		builder.append(", activeUsers=");
-		builder.append(activeUsers);
-		builder.append(", inactiveUsers=");
-		builder.append(inactiveUsers);
+		builder.append(", users=");
+		builder.append(users);
 		builder.append("]");
 		return builder.toString();
 	}

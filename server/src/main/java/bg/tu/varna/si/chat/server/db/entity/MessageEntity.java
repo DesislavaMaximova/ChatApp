@@ -24,12 +24,24 @@ public class MessageEntity {
 	
 	private Date timestamp;
 	
+	private long groupID;
+	
+	
+
 	private boolean delivered;
+	
 	
 	public MessageEntity() {
 		
 	}
+	public long getGroupID() {
+		return groupID;
+	}
 
+	public void setGroupID(long groupID) {
+		this.groupID = groupID;
+	}
+	
 	public String getSender() {
 		return sender;
 	}

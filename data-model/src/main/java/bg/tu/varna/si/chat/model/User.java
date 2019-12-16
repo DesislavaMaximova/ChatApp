@@ -1,38 +1,38 @@
 package bg.tu.varna.si.chat.model;
 
-import java.io.Serializable;
+import bg.tu.varna.si.chat.model.request.RecipientType;
 
-public class User implements Serializable {
+public class User extends Recipient {
 
 	private static final long serialVersionUID = 1L;
 
 	private String userName;
 	
+	private boolean isActive;
+
 	private String displayName;
 
-	public User(String userName, String displayName) {
+	public User(String userName, boolean isActive, String displayName) {
+		super(RecipientType.USER);
 		this.userName = userName;
+		this.isActive = isActive;
 		this.displayName = displayName;
 	}
 
-	public User() {
-		
-	}	
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 
 	public String getUserName() {
 		return userName;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public boolean isActive() {
+		return isActive;
 	}
 
 	public String getDisplayName() {
 		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
 	}
 
 	@Override
@@ -40,6 +40,8 @@ public class User implements Serializable {
 		StringBuilder builder = new StringBuilder();
 		builder.append("User [userName=");
 		builder.append(userName);
+		builder.append(", isActive=");
+		builder.append(isActive);
 		builder.append(", displayName=");
 		builder.append(displayName);
 		builder.append("]");

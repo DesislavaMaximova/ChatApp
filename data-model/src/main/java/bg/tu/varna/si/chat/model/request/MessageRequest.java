@@ -9,6 +9,8 @@ public class MessageRequest extends Request {
 	private String recipientName;
 	
 	private String senderName;
+	
+	private long groupID;
 
 	public MessageRequest(String messageContent, String recipientName, String senderName) {
 		super(RequestType.MESSAGE_REQUEST);
@@ -21,12 +23,20 @@ public class MessageRequest extends Request {
 		return messageContent;
 	}
 
-	public String getRecieverName() {
+	public String getRecipientName() {
 		return recipientName;
 	}
 
 	public String getSenderName() {
 		return senderName;
+	}
+	
+	public long getGroupID() {
+		return groupID;
+	}
+
+	public void setGroupID(long groupID) {
+		this.groupID = groupID;
 	}
 
 	@Override

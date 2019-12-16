@@ -38,8 +38,6 @@ public class ClientHandler implements Runnable {
 		}
 	}
 
-
-
 	public void sendRequest(Request request) {
 		try {
 			outputStream.writeObject(request);
@@ -64,8 +62,8 @@ public class ClientHandler implements Runnable {
 					ClientRegistry.getInstance().logUserIn(userName, this);
 				}
 
-				if (userName == null && ResponseType.ERROR != response.getResponseType() ) {
-					throw new IllegalRequestException(ErrorType.UNEXPECTED_REQUEST, 
+				if (userName == null && ResponseType.ERROR != response.getResponseType()) {
+					throw new IllegalRequestException(ErrorType.UNEXPECTED_REQUEST,
 							"Expecting login or register request, but received [" + request.getRequestType() + "]");
 				}
 
@@ -77,12 +75,11 @@ public class ClientHandler implements Runnable {
 
 			writeResponse(response);
 
-		} while (request != null &&	RequestType.LOGOUT_REQUEST != request.getRequestType());
+		} while (request != null && RequestType.LOGOUT_REQUEST != request.getRequestType());
 
 		ClientRegistry.getInstance().logUserOut(userName);
 		shutdown();
 	}
-
 
 	private Request readRequest() {
 		Request request = null;
@@ -92,7 +89,7 @@ public class ClientHandler implements Runnable {
 		} catch (ClassNotFoundException | IOException e) {
 			System.err.println("Failed reading request: " + e.getLocalizedMessage());
 		}
-		
+
 		return request;
 	}
 
@@ -102,6 +99,17 @@ public class ClientHandler implements Runnable {
 		} catch (IOException e) {
 			System.err.println("Failed writing response: " + e.getLocalizedMessage());
 		}
+	}
+	
+	public Response readResponse() {
+		Response response = null;
+		try {
+			response = (Response) inputStream.readObject();
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return response;
 	}
 
 	private void shutdown() {
@@ -114,4 +122,15 @@ public class ClientHandler implements Runnable {
 			System.out.println("Failed closing connection!");
 		}
 	}
+
+	public void sendFile(byte[] content) {
+		try {
+			outputStream.writeObject(content);
+		} catch (IOException e) {
+			throw new IllegalStateException("Failed writing file in outputstream", e);
+		}
+		
+	}
+
+	
 }

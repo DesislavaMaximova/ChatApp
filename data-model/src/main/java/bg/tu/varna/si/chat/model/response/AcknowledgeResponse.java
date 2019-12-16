@@ -5,6 +5,10 @@ public class AcknowledgeResponse extends Response {
 	private static final long serialVersionUID = 2489349005650038675L;
 	
 	private String message;
+	
+	public AcknowledgeResponse() {
+		super(ResponseType.ACKNOWLEGE);
+	}
 
 	public AcknowledgeResponse(String message) {
 		super(ResponseType.ACKNOWLEGE);
@@ -13,6 +17,11 @@ public class AcknowledgeResponse extends Response {
 
 	public String getMessage() {
 		return message;
+	}
+	
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 	@Override

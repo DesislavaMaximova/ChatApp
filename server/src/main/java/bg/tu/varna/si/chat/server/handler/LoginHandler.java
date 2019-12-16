@@ -8,7 +8,6 @@ import bg.tu.varna.si.chat.model.response.ErrorType;
 import bg.tu.varna.si.chat.model.response.LoginResponse;
 import bg.tu.varna.si.chat.model.response.Response;
 import bg.tu.varna.si.chat.server.ClientRegistry;
-import bg.tu.varna.si.chat.server.UserConverter;
 import bg.tu.varna.si.chat.server.db.UserDAO;
 import bg.tu.varna.si.chat.server.db.entity.UserEntity;
 
@@ -66,11 +65,10 @@ public class LoginHandler extends RequestHandler {
 		}
 
 		// 2. Register this ClientHandler in ClientRegistry
-		User loggedUser = UserConverter.createUser(userData);
+		User loggedUser = new User(userData.getUserName(), true, userData.getDisplayName());
 
 		// 3. return LoginResponse (currentUser, activeUsers, inactiveUsers)
-		Response response = new LoginResponse(loggedUser, ClientRegistry.getInstance().getActiveUsers(),
-				ClientRegistry.getInstance().getInactiveUsers());
+		Response response = new LoginResponse(loggedUser, ClientRegistry.getInstance().getUsers());
 
 		return response;
 	}

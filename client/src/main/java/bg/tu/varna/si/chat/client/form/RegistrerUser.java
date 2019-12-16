@@ -3,8 +3,10 @@ package bg.tu.varna.si.chat.client.form;
 import java.sql.SQLException;
 
 import bg.tu.varna.si.chat.client.Client;
+import bg.tu.varna.si.chat.client.UsersRegistry;
 import bg.tu.varna.si.chat.model.request.UserRegisterRequest;
 import bg.tu.varna.si.chat.model.response.ErrorResponse;
+import bg.tu.varna.si.chat.model.response.LoginResponse;
 import bg.tu.varna.si.chat.model.response.Response;
 import bg.tu.varna.si.chat.model.response.ResponseType;
 import javafx.event.ActionEvent;
@@ -88,6 +90,10 @@ public class RegistrerUser extends BaseForm {
 
 		if (ResponseType.LOGIN == response.getResponseType()) {
 			
+			LoginResponse loginResponse = (LoginResponse) response;
+			UsersRegistry.getInstance().setCurrentUser(loginResponse.getCurrentUser());
+			UsersRegistry.getInstance().setUsers(loginResponse.getUsers());
+			
 			try {
 				Stage currentStage = (Stage) registerButton.getScene().getWindow();
 				currentStage.close();
@@ -96,7 +102,7 @@ public class RegistrerUser extends BaseForm {
 				BorderPane root = (BorderPane) fxmlLoader.load();
 				stage = new Stage();
 				Scene scene = new Scene(root);
-				stage.setTitle("DNK Messenger");
+				stage.setTitle("DNK Messenger: " + UsersRegistry.getInstance().getCurrentUser().getDisplayName());
 				stage.setScene(scene);
 				stage.show();
 			} catch (Exception e) {

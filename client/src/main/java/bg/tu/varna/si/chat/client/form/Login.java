@@ -3,9 +3,11 @@ package bg.tu.varna.si.chat.client.form;
 import java.sql.SQLException;
 
 import bg.tu.varna.si.chat.client.Client;
+import bg.tu.varna.si.chat.client.UsersRegistry;
 import bg.tu.varna.si.chat.model.Credentials;
 import bg.tu.varna.si.chat.model.request.LoginRequest;
 import bg.tu.varna.si.chat.model.response.ErrorResponse;
+import bg.tu.varna.si.chat.model.response.LoginResponse;
 import bg.tu.varna.si.chat.model.response.Response;
 import bg.tu.varna.si.chat.model.response.ResponseType;
 import javafx.event.ActionEvent;
@@ -71,6 +73,12 @@ public class Login extends BaseForm {
 		credentials.setPassword(passwordField.getText());
 		LoginRequest login = new LoginRequest(credentials);
 		Response response = Client.getInstance().send(login);
+		
+		if (ResponseType.LOGIN == response.getResponseType()) {
+			LoginResponse loginResponse = (LoginResponse) response;
+			UsersRegistry.getInstance().setUsers(loginResponse.getUsers());
+			UsersRegistry.getInstance().setCurrentUser(loginResponse.getCurrentUser());
+		}
 
 		if (ResponseType.ERROR == response.getResponseType()) {
 			ErrorResponse errorResponse = (ErrorResponse) response;
@@ -81,12 +89,12 @@ public class Login extends BaseForm {
 		try {
 			Stage currentStage = (Stage) logIn.getScene().getWindow();
 			currentStage.close();
-			
+
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ChatFrame.fxml"));
 			BorderPane root = (BorderPane) fxmlLoader.load();
 			stage = new Stage();
 			Scene scene = new Scene(root);
-			stage.setTitle("DNK Messenger");
+			stage.setTitle("DNK Messenger: " + UsersRegistry.getInstance().getCurrentUser().getDisplayName());
 			stage.setScene(scene);
 			stage.show();
 		} catch (Exception e) {

@@ -2,9 +2,9 @@ package bg.tu.varna.si.chat.model.request;
 
 public class FileTransferRequest extends Request {
 	
-	private String recipientName;
+	private String recipient;
 	
-	private String senderName;
+	private String sender;
 	
 	private String fileName;
 	
@@ -14,21 +14,21 @@ public class FileTransferRequest extends Request {
 	
 	private static final long serialVersionUID = 8291601432838574410L;
 
-	public FileTransferRequest(String recipientName, String senderName, String fileName, int size) {
+	public FileTransferRequest(String recipient, String sender, String fileName, int size) {
 		super(RequestType.FILE_TRANSFER_REQUEST);
-		this.recipientName = recipientName;
-		this.senderName = senderName;
+		this.recipient = recipient;
+		this.sender = sender;
 		this.fileName = fileName;
 		this.size = size;
 		
 	}
 
-	public String getRecipientName() {
-		return recipientName;
+	public String getRecipient() {
+		return recipient;
 	}
 
-	public String getSenderName() {
-		return senderName;
+	public String getSender() {
+		return sender;
 	}
 
 

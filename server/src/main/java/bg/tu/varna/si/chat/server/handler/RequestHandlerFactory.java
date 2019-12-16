@@ -31,7 +31,7 @@ public final class RequestHandlerFactory {
 			return new MessageHandler();
 			
 		case FILE_TRANSFER_REQUEST:
-			return new FileHandler();
+			return new FileTransferRequestHandler();
 
 		default:
 			throw new UnsupportedRequestException(ErrorType.UNSUPPORTED_REQUEST, "Unsupported request [" + requestType + "]");

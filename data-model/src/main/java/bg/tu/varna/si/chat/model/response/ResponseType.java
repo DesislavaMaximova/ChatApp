@@ -10,6 +10,8 @@ public enum ResponseType {
 	
 	FILE_TRANSFER, 
 	
+	FILE_CONTENT,
+	
 	REGISTER, 
 	
 	ERROR, 

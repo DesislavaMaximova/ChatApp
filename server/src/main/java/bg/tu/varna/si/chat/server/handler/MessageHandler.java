@@ -16,16 +16,17 @@ public class MessageHandler extends RequestHandler {
 
 	@Override
 	public Response handle(Request request) {
-		
+
 		MessageRequest message = (MessageRequest) request;
 
-
 		// 1. get recipient user (return error if recipient does not exist)
-		UserEntity recipient = UserDAO.getInstance().getUserEntity(message.getRecieverName());
+		// TODO: 1.1 check if the recipient is single user or group
+
+		UserEntity recipient = UserDAO.getInstance().getUserEntity(message.getRecipientName());
 
 		if (recipient == null) {
 			return new ErrorResponse(ErrorType.INEXISTENT_USER,
-					"User with username [" + message.getRecieverName() + "] does not exist.");
+					"User with username [" + message.getRecipientName() + "] does not exist.");
 		}
 
 		// 2. get recipient ClientHanlder
@@ -43,5 +44,4 @@ public class MessageHandler extends RequestHandler {
 		// 3. return response
 		return new AcknowledgeResponse("OK!");
 	}
-
 }

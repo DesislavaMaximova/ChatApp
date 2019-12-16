@@ -40,28 +40,20 @@ public class ClientRegistry {
 		clientHandlers.remove(userName);
 	}
 	
-	public Collection<User> getActiveUsers() {
-		List<User> activeUsers = new LinkedList<User>();
+	public Collection<User> getUsers() {
+		List<User> users = new LinkedList<User>();
 		
 		for (UserEntity data : UserDAO.getInstance().getAllUsers()) {
 			if (clientHandlers.containsKey(data.getUserName())) {
-				activeUsers.add(new User(data.getUserName(), data.getDisplayName()));
+				users.add(new User(data.getUserName(), true, data.getDisplayName()));
+			} else {
+				users.add(new User(data.getUserName(), false, data.getDisplayName()));
 			}
 		}
 
-		return activeUsers;
+		return users;
 	}
 	
-	public Collection<User> getInactiveUsers() {
-		List<User> inactiveUsers = new LinkedList<User>();
-		
-		for (UserEntity data : UserDAO.getInstance().getAllUsers()) {
-			if (!clientHandlers.containsKey(data.getUserName())) {
-				inactiveUsers.add(new User(data.getUserName(), data.getDisplayName()));
-			}
-		}
 
-		return inactiveUsers;
-	}
 
 }

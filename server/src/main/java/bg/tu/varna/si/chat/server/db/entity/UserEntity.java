@@ -12,7 +12,7 @@ public class UserEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	private long id;
 
 	private String userName;
 
@@ -41,7 +41,7 @@ public class UserEntity {
 
 	}
 
-	public int getID() {
+	public long getID() {
 		return id;
 	}
 

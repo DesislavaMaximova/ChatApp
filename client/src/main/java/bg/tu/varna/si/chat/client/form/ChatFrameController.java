@@ -13,15 +13,19 @@ import bg.tu.varna.si.chat.model.response.Response;
 import bg.tu.varna.si.chat.model.response.ResponseType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class ChatFrameController extends BaseForm implements Initializable {
@@ -51,6 +55,9 @@ public class ChatFrameController extends BaseForm implements Initializable {
 	
 	@FXML
 	Stage stage;
+	
+	@FXML
+	Label chatUserName;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -123,7 +130,21 @@ public class ChatFrameController extends BaseForm implements Initializable {
 		
 		TreeItem<String> item = friendsList.getSelectionModel().getSelectedItem();
 		
+		if(item.getValue().toString() != "Online users" && item.getValue().toString() != "Offline users")
+				try {
+					FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ChatFrame.fxml"));
+					BorderPane root = (BorderPane) fxmlLoader.load();
+					stage = new Stage();
+					Scene scene = new Scene(root);
+					stage.setTitle("DNK Messenger: " + UsersRegistry.getInstance().getCurrentUser().getDisplayName());
+					stage.setScene(scene);
+					stage.show();
+					}catch (Exception e) {
+						e.printStackTrace();
+					}
+				//messageArea.appendText(item.getValue().toString() + "\n");//this is only an example to see if it even works
+			}
+		}
 			
-		messageArea.appendText(item.getValue().toString() + "\n");//this is only an example to see if it even works
-	}
-}
+		
+		

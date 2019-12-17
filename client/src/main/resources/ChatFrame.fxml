@@ -23,7 +23,7 @@
                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                      </VBox.margin>
                   </HBox>
-                  <TreeView fx:id="friendsList" onContextMenuRequested="#selectedItem" onMouseClicked="#selectedItem" prefHeight="541.0" prefWidth="182.0" VBox.vgrow="ALWAYS" />
+                  <TreeView fx:id="friendsList" onMouseClicked="#selectedItem" prefHeight="541.0" prefWidth="182.0" VBox.vgrow="ALWAYS" />
                </children>
                <padding>
                   <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
@@ -55,24 +55,8 @@
             <HBox spacing="8.0">
                <children>
                   <TextField fx:id="userInputMessage" prefHeight="32.0" prefWidth="369.0" HBox.hgrow="ALWAYS" />
-                  <Button fx:id="sendFileButton" mnemonicParsing="false" onAction="#sendFileButtonClicked" text="File">
-                     <graphic>
-                        <ImageView fx:id="sendFile" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@attach.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
-                  <Button fx:id="sendMessageButton" layoutX="159.0" layoutY="10.0" mnemonicParsing="false" onAction="#sendMessageButtonClicked" text="Send">
-                     <graphic>
-                        <ImageView fx:id="sendMessage" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@send-button.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
+                  <Button fx:id="sendFileButton" mnemonicParsing="false" onAction="#sendFileButtonClicked" prefWidth="60.0" text="File" />
+                  <Button fx:id="sendMessageButton" layoutX="159.0" layoutY="10.0" mnemonicParsing="false" onAction="#sendMessageButtonClicked" prefWidth="70.0" text="Send" />
                </children>
                <VBox.margin>
                   <Insets bottom="8.0" top="8.0" />

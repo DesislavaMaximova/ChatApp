@@ -3,18 +3,12 @@ package bg.tu.varna.si.chat.server.db;
 import java.util.Collection;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 
 import bg.tu.varna.si.chat.model.request.FileContentRequest;
 import bg.tu.varna.si.chat.server.db.entity.FileEntity;
 
 public class FileDAO {
-
-	
-	private SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
-
 
 	private static FileDAO INSTANCE_HOLDER;
 
@@ -31,7 +25,7 @@ public class FileDAO {
 
 	public Collection<FileEntity> getFile(String fileName) {
 
-		try (Session session = sessionFactory.openSession()) {
+		try (Session session = SessionManager.getSessionFactory().openSession()) {
 			return session.createQuery("from FileEntity where fileName = :fileName", FileEntity.class)
 					.list();
 		}
@@ -41,7 +35,7 @@ public class FileDAO {
 	public void storeFile(FileContentRequest file) {
 
 		Transaction transaction = null;
-		try (Session session = sessionFactory.openSession()) {
+		try (Session session = SessionManager.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
 			FileEntity fileEntity = new FileEntity(); 
 			fileEntity.setRecipient(file.getRecipient());

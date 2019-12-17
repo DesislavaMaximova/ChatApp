@@ -37,15 +37,7 @@ public class User extends Recipient {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("User [userName=");
-		builder.append(userName);
-		builder.append(", isActive=");
-		builder.append(isActive);
-		builder.append(", displayName=");
-		builder.append(displayName);
-		builder.append("]");
-		return builder.toString();
+		return this.displayName;
 	}
 	
 }

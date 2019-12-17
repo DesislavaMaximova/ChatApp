@@ -10,10 +10,12 @@
 		<property name="hibernate.connection.username">root</property>
 		<property name="hibernate.connection.password">root123</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
-	
-	<!-- <property name="hibernate.hbm2ddl.auto">create</property>  -->
 
+		<!--  <property name="hibernate.hbm2ddl.auto">create</property>
+-->
 		<mapping class="bg.tu.varna.si.chat.server.db.entity.UserEntity" />
-		
+		<mapping class="bg.tu.varna.si.chat.server.db.entity.MessageEntity" />
+		<mapping class="bg.tu.varna.si.chat.server.db.entity.FileEntity" />
+
 	</session-factory>
 </hibernate-configuration>

@@ -5,9 +5,7 @@ import java.util.Collection;
 import javax.persistence.NoResultException;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 
 import bg.tu.varna.si.chat.server.db.entity.GroupEntity;
 import bg.tu.varna.si.chat.server.db.entity.UserEntity;
@@ -15,8 +13,6 @@ import bg.tu.varna.si.chat.server.db.entity.UserEntity;
 public class GroupDAO {
 
 	private static GroupDAO INSTANCE_HOLDER;
-
-	private SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
 
 	private GroupDAO() {
 
@@ -30,7 +26,7 @@ public class GroupDAO {
 	}
 
 	public GroupEntity getGroupEntity(String groupName) {
-		try (Session session = sessionFactory.openSession()) {
+		try (Session session = SessionManager.getSessionFactory().openSession()) {
 			return session.createQuery("from GroupEntity where groupName = :groupName", GroupEntity.class)
 
 					.setParameter("groupName", groupName).getSingleResult();
@@ -43,7 +39,7 @@ public class GroupDAO {
 
 		Transaction transaction = null;
 
-		try (Session session = sessionFactory.openSession()) {
+		try (Session session = SessionManager.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
 			session.save(groupEntity);
 
@@ -60,7 +56,7 @@ public class GroupDAO {
 
 	public void addUserToGroup(GroupEntity groupEntity, UserEntity userEntity) {
 		Transaction transaction = null;
-		try (Session session = sessionFactory.openSession()) {
+		try (Session session = SessionManager.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
 			session.save(groupEntity.getUserEntities().add(userEntity));
 
@@ -74,7 +70,7 @@ public class GroupDAO {
 	}
 
 	public Collection<GroupEntity> getAllGroups() {
-		try (Session session = sessionFactory.openSession()) {
+		try (Session session = SessionManager.getSessionFactory().openSession()) {
 			return session.createQuery("from GroupEntity", GroupEntity.class).list();
 		}
 	}

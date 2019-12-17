@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import bg.tu.varna.si.chat.server.db.UserDAO;
+import bg.tu.varna.si.chat.server.db.SessionManager;
 
 public class Server {
 
@@ -14,7 +14,7 @@ public class Server {
 		
 		try (ServerSocket server = new ServerSocket(PORT)) {
 			
-			UserDAO.getInstance();
+			SessionManager.getSessionFactory();
 			
 			System.out.println("Server started. Listening on port " + PORT);
 			

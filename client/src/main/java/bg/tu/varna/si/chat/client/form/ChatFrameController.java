@@ -13,10 +13,8 @@ import bg.tu.varna.si.chat.model.response.Response;
 import bg.tu.varna.si.chat.model.response.ResponseType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -25,12 +23,9 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class ChatFrameController extends BaseForm implements Initializable {
-
-	
 
 	@FXML
 	private TextArea messageArea;
@@ -51,23 +46,26 @@ public class ChatFrameController extends BaseForm implements Initializable {
 	private ImageView sendMessage;
 
 	@FXML
-	private TreeView<String> friendsList;
-	
+	private TreeView<User> friendsList;
+
 	@FXML
 	Stage stage;
-	
+
 	@FXML
 	Label chatUserName;
 
+	String recipient;
+
+	String sender;
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		// root of the tree
 
-		TreeItem<String> rootItem = new TreeItem<>("Root");
+		TreeItem<User> rootItem = new TreeItem<>();
 		rootItem.setExpanded(true);
 
 		// online branch and its children
-		TreeItem<String> onlineUsersTree = new TreeItem<String>("Online users");
+		TreeItem<User> onlineUsersTree = new TreeItem<User>(new User("", false, "Online users"));
 
 		Collection<User> allUsers = UsersRegistry.getInstance().getUsers();
 		for (User user : allUsers) {
@@ -77,7 +75,7 @@ public class ChatFrameController extends BaseForm implements Initializable {
 		}
 
 		// offline users branch and its children
-		TreeItem<String> offlineUsersTree = new TreeItem<String>("Offline users");
+		TreeItem<User> offlineUsersTree = new TreeItem<User>(new User("", false, "Offline users"));
 		for (User user : allUsers) {
 			if (!user.isActive()) {
 				addUser(user, offlineUsersTree);
@@ -96,10 +94,10 @@ public class ChatFrameController extends BaseForm implements Initializable {
 	}
 
 	// Create branches
-	private void addUser(User user, TreeItem<String> parent) {
+	private void addUser(User user, TreeItem<User> parent) {
 		// skip currently logged user
 		if (!UsersRegistry.getInstance().getCurrentUser().getUserName().equals(user.getUserName())) {
-			TreeItem<String> item = new TreeItem<>(user.getDisplayName());
+			TreeItem<User> item = new TreeItem<>(user);
 			parent.getChildren().add(item);
 		}
 	}
@@ -112,10 +110,11 @@ public class ChatFrameController extends BaseForm implements Initializable {
 	@FXML
 	protected void sendMessageButtonClicked(ActionEvent event) throws Exception {
 		// send message button clicked
-		MessageRequest message = new MessageRequest(userInputMessage.getText().toString(), "recipientName",
-				"senderName");
-		messageArea.appendText(userInputMessage.getText().toString() + "\n");
+		sender = UsersRegistry.getInstance().getCurrentUser().getUserName();
+		MessageRequest message = new MessageRequest(userInputMessage.getText().toString(), recipient, sender);
+		messageArea.appendText(userInputMessage.getText().toString() + sender + "\n");
 		Response response = Client.getInstance().send(message);
+		userInputMessage.clear();
 
 		if (ResponseType.ERROR == response.getResponseType()) {
 			ErrorResponse errorResponse = (ErrorResponse) response;
@@ -125,26 +124,19 @@ public class ChatFrameController extends BaseForm implements Initializable {
 	}
 
 	@FXML
-	protected void selectedItem(MouseEvent event) {
-		//selected item from TreeView
-		
-		TreeItem<String> item = friendsList.getSelectionModel().getSelectedItem();
-		
-		if(item.getValue().toString() != "Online users" && item.getValue().toString() != "Offline users")
-				try {
-					FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ChatFrame.fxml"));
-					BorderPane root = (BorderPane) fxmlLoader.load();
-					stage = new Stage();
-					Scene scene = new Scene(root);
-					stage.setTitle("DNK Messenger: " + UsersRegistry.getInstance().getCurrentUser().getDisplayName());
-					stage.setScene(scene);
-					stage.show();
-					}catch (Exception e) {
-						e.printStackTrace();
-					}
-				//messageArea.appendText(item.getValue().toString() + "\n");//this is only an example to see if it even works
-			}
-		}
+	protected void selectedItem(MouseEvent click) {
+		// selected item from TreeView
+		TreeItem<User> selectedItem = friendsList.getSelectionModel().getSelectedItem();
+		if (selectedItem.getValue().getUserName() != null) {
+			// TODO : open a chat dialog with selected user
+
+			chatUserName.setText(selectedItem.getValue().getDisplayName());
+//			stage.setTitle("DNK Messenger: " + UsersRegistry.getInstance().getCurrentUser().getDisplayName());
+
+			recipient = selectedItem.getValue().getUserName();
 			
-		
-		
+			System.out.println("Selected username: " + selectedItem.getValue().getUserName());
+		}
+
+	}
+}

@@ -5,17 +5,13 @@ import java.util.Collection;
 import javax.persistence.NoResultException;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 
 import bg.tu.varna.si.chat.server.db.entity.UserEntity;
 
 public class UserDAO {
 
 	private static UserDAO INSTANCE_HOLDER;
-	
-	private SessionFactory sessionFactory =  new Configuration().configure().buildSessionFactory();
 	
 	private UserDAO() {
 		
@@ -30,13 +26,13 @@ public class UserDAO {
 	}
 
 	public Collection<UserEntity> getAllUsers() {
-		try (Session session = sessionFactory.openSession() ) {
+		try (Session session = SessionManager.getSessionFactory().openSession() ) {
 			return session.createQuery("from UserEntity", UserEntity.class).list();
 		}
 	}
 	
 	public UserEntity getUserEntity(String username) {
-		try (Session session = sessionFactory.openSession() ) {
+		try (Session session = SessionManager.getSessionFactory().openSession() ) {
 			return session.createQuery("from UserEntity where userName = :userName", UserEntity.class)
 					.setParameter("userName", username).getSingleResult();
 		} catch (NoResultException e) {
@@ -48,7 +44,7 @@ public class UserDAO {
 
 		Transaction transaction = null;
 		
-		try (Session session = sessionFactory.openSession()) {
+		try (Session session = SessionManager.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
 			session.save(userEntity);
 			

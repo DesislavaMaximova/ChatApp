@@ -1,6 +1,6 @@
 package bg.tu.varna.si.chat.client;
 
-import java.util.Collection;
+import java.util.List;
 
 import bg.tu.varna.si.chat.model.User;
 
@@ -8,10 +8,10 @@ public class UsersRegistry {
 
 	private static UsersRegistry INSTANCE_HOLDER;
 
-	private Collection<User> users;
+	private List<User> users;
 
 	private User currentUser;
-
+	
 	private UsersRegistry() {
 
 	}
@@ -24,11 +24,11 @@ public class UsersRegistry {
 		return INSTANCE_HOLDER;
 	}
 
-	public Collection<User> getUsers() {
+	public List<User> getUsers() {
 		return users;
 	}
 
-	public void setUsers(Collection<User> users) {
+	public void setUsers(List<User> users) {
 		this.users = users;
 	}
 
@@ -38,6 +38,16 @@ public class UsersRegistry {
 
 	public void setCurrentUser(User currentUser) {
 		this.currentUser = currentUser;
+	}
+	
+	public User getUser(String userName) {
+		for (User user : users) {
+			if (user.getUserName().equals(userName)) {
+				return user;
+			}
+		}
+		
+		return null;
 	}
 
 }

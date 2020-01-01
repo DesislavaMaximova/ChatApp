@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="582.0" prefWidth="664.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bg.tu.varna.si.chat.client.form.ChatFrameController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="582.0" prefWidth="664.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bg.tu.varna.si.chat.client.controller.ChatController">
    <left>
       <SplitPane BorderPane.alignment="CENTER">
          <items>
@@ -23,7 +23,7 @@
                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                      </VBox.margin>
                   </HBox>
-                  <TreeView fx:id="friendsList" onMouseClicked="#selectedItem" prefHeight="541.0" prefWidth="182.0" VBox.vgrow="ALWAYS" />
+                  <ListView fx:id="userList" onMouseClicked="#selectedItem" prefHeight="541.0" prefWidth="182.0" VBox.vgrow="ALWAYS" />
                </children>
                <padding>
                   <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
@@ -41,7 +41,7 @@
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Region HBox.hgrow="ALWAYS" />
-                  <Label fx:id="chatUserName" text="User:" />
+                  <Label fx:id="chatUserName" />
                   <Region layoutX="10.0" layoutY="10.0" HBox.hgrow="ALWAYS" />
                </children>
                <VBox.margin>
@@ -51,12 +51,11 @@
                   <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
                </padding>
             </HBox>
-            <TextArea fx:id="messageArea" disable="false" editable="false" prefHeight="491.0" prefWidth="384.0" VBox.vgrow="ALWAYS" />
+            <Pane fx:id="messagePane" disable="false" prefHeight="491.0" prefWidth="384.0" VBox.vgrow="ALWAYS" />
             <HBox spacing="8.0">
                <children>
-                  <Button fx:id="sendFileButton" mnemonicParsing="false" onAction="#sendFileButtonClicked" prefWidth="60.0" text="File" />
                   <TextField fx:id="userInputMessage" prefHeight="32.0" prefWidth="369.0" HBox.hgrow="ALWAYS" />
-                  <Button fx:id="sendMessageButton" layoutX="159.0" layoutY="10.0" mnemonicParsing="false" onAction="#sendMessageButtonClicked" prefWidth="70.0" text="Send" />
+                  <Button fx:id="sendMessageButton" layoutX="159.0" layoutY="10.0" mnemonicParsing="false" onAction="#sendMessage" prefWidth="70.0" text="Send" />
                </children>
                <VBox.margin>
                   <Insets bottom="8.0" top="8.0" />

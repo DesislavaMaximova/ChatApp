@@ -1,14 +1,9 @@
-package bg.tu.varna.si.chat.client.form;
+package bg.tu.varna.si.chat.client.controller;
 
 import java.sql.SQLException;
+import java.util.LinkedList;
 
-import bg.tu.varna.si.chat.client.Client;
-import bg.tu.varna.si.chat.client.UsersRegistry;
-import bg.tu.varna.si.chat.model.request.UserRegisterRequest;
-import bg.tu.varna.si.chat.model.response.ErrorResponse;
-import bg.tu.varna.si.chat.model.response.LoginResponse;
-import bg.tu.varna.si.chat.model.response.Response;
-import bg.tu.varna.si.chat.model.response.ResponseType;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,9 +14,16 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javafx.stage.Window;
+import bg.tu.varna.si.chat.client.ClientLauncher;
+import bg.tu.varna.si.chat.client.Listener;
+import bg.tu.varna.si.chat.client.UsersRegistry;
+import bg.tu.varna.si.chat.model.request.UserRegisterRequest;
+import bg.tu.varna.si.chat.model.response.ErrorResponse;
+import bg.tu.varna.si.chat.model.response.LoginResponse;
+import bg.tu.varna.si.chat.model.response.Response;
+import bg.tu.varna.si.chat.model.response.ResponseType;
 
-public class RegistrerUser extends BaseForm {
+public class RegisterUserController extends BaseController {
 
 	@FXML
 	private TextField userNameField;
@@ -40,11 +42,6 @@ public class RegistrerUser extends BaseForm {
 
 	@FXML
 	private Button registerButton;
-
-	@FXML
-	private Button closeButton;
-
-	Window owner = null;
 
 	@FXML
 	public void register(ActionEvent event) throws SQLException {
@@ -86,41 +83,49 @@ public class RegistrerUser extends BaseForm {
 		UserRegisterRequest registerRequest = new UserRegisterRequest(
 				userName, firstName, lastName, displayName, password);
 		
-		Response response = Client.getInstance().send(registerRequest);
-
+		Listener listener = new Listener(ClientLauncher.SERVER_HOST, ClientLauncher.SERVER_PORT);
+		
+		Response response = listener.sendAndReceive(registerRequest);
+		
+		if (ResponseType.ERROR == response.getResponseType()) {
+			ErrorResponse errorResponse = (ErrorResponse) response;
+			
+			alert(AlertType.ERROR, "Error", errorResponse.getErrorMessage());
+			return;
+		}
+		
 		if (ResponseType.LOGIN == response.getResponseType()) {
 			
 			LoginResponse loginResponse = (LoginResponse) response;
 			UsersRegistry.getInstance().setCurrentUser(loginResponse.getCurrentUser());
-			UsersRegistry.getInstance().setUsers(loginResponse.getUsers());
+			UsersRegistry.getInstance().setUsers(new LinkedList<>(loginResponse.getUsers()));
 			
 			try {
 				Stage currentStage = (Stage) registerButton.getScene().getWindow();
 				currentStage.close();
 				
-				FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ChatFrame.fxml"));
+				FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/Chat.fxml"));
 				BorderPane root = (BorderPane) fxmlLoader.load();
 				stage = new Stage();
 				Scene scene = new Scene(root);
 				stage.setTitle("DNK Messenger: " + UsersRegistry.getInstance().getCurrentUser().getDisplayName());
 				stage.setScene(scene);
 				stage.show();
+				
+				listener.setChatController(fxmlLoader.getController());
+				
+				stage.setOnCloseRequest(e -> {
+					System.out.println("Shutting down client application.");
+					Platform.exit();
+					System.exit(0);
+				});
+				
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw new IllegalStateException(e);
 			}
 		
+			new Thread(listener).start();
 		}
-		
-		if (ResponseType.ERROR == response.getResponseType()) {
-			ErrorResponse errorResponse = (ErrorResponse) response;
-			
-			alert(AlertType.ERROR, "Error", errorResponse.getErrorMessage());
-		}
-		
 	}
-
-	public void close(ActionEvent event) {
-		Stage stage = (Stage) closeButton.getScene().getWindow();
-		stage.close();
-	}
+	
 }

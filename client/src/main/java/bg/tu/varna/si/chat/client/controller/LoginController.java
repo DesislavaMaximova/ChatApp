@@ -1,15 +1,10 @@
-package bg.tu.varna.si.chat.client.form;
+package bg.tu.varna.si.chat.client.controller;
 
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.LinkedList;
 
-import bg.tu.varna.si.chat.client.Client;
-import bg.tu.varna.si.chat.client.UsersRegistry;
-import bg.tu.varna.si.chat.model.Credentials;
-import bg.tu.varna.si.chat.model.request.LoginRequest;
-import bg.tu.varna.si.chat.model.response.ErrorResponse;
-import bg.tu.varna.si.chat.model.response.LoginResponse;
-import bg.tu.varna.si.chat.model.response.Response;
-import bg.tu.varna.si.chat.model.response.ResponseType;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,8 +16,16 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import bg.tu.varna.si.chat.client.Listener;
+import bg.tu.varna.si.chat.client.UsersRegistry;
+import bg.tu.varna.si.chat.model.Credentials;
+import bg.tu.varna.si.chat.model.request.LoginRequest;
+import bg.tu.varna.si.chat.model.response.ErrorResponse;
+import bg.tu.varna.si.chat.model.response.LoginResponse;
+import bg.tu.varna.si.chat.model.response.Response;
+import bg.tu.varna.si.chat.model.response.ResponseType;
 
-public class Login extends BaseForm {
+public class LoginController extends BaseController {
 
 	@FXML
 	private TextField userNameField;
@@ -36,8 +39,19 @@ public class Login extends BaseForm {
 	@FXML
 	private Button logIn;
 
-	@FXML
-	Stage stage;
+	private static LoginController INSTANCE_HOLDER;
+
+	public static ChatController chatController;
+
+
+	public LoginController() {
+		INSTANCE_HOLDER = this;
+	}
+
+	public static LoginController getInstance() {
+		return INSTANCE_HOLDER;
+	}
+
 
 	@FXML
 	protected void handleSignUpButtonAction(ActionEvent event) throws Exception {
@@ -46,37 +60,43 @@ public class Login extends BaseForm {
 			Stage currentStage = (Stage) logIn.getScene().getWindow();
 			currentStage.close();
 
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/Registration.fxml"));
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/RegisterUser.fxml"));
 			Parent root = (Parent) fxmlLoader.load();
 			Stage stage = new Stage();
 			stage.setTitle("Register User");
 			stage.setScene(new Scene(root));
 			stage.show();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 
 	@FXML
 	protected void handleLogInButtonAction(ActionEvent event) throws SQLException {
+		
 		if (userNameField.getText().isEmpty()) {
 			alert(AlertType.ERROR, "Error", "Please enter your username.");
 			return;
 		}
+		
 		if (passwordField.getText().isEmpty()) {
 			alert(AlertType.ERROR, "Error", "Please enter your password.");
 			return;
 		}
+		
+		listener = new Listener("localhost", 1300);
+
 
 		Credentials credentials = new Credentials();
 		credentials.setUserName(userNameField.getText());
 		credentials.setPassword(passwordField.getText());
 		LoginRequest login = new LoginRequest(credentials);
-		Response response = Client.getInstance().send(login);
-		
+
+		Response response = listener.sendAndReceive(login);
+
 		if (ResponseType.LOGIN == response.getResponseType()) {
 			LoginResponse loginResponse = (LoginResponse) response;
-			UsersRegistry.getInstance().setUsers(loginResponse.getUsers());
+			UsersRegistry.getInstance().setUsers(new LinkedList<>(loginResponse.getUsers()));
 			UsersRegistry.getInstance().setCurrentUser(loginResponse.getCurrentUser());
 		}
 
@@ -90,17 +110,29 @@ public class Login extends BaseForm {
 			Stage currentStage = (Stage) logIn.getScene().getWindow();
 			currentStage.close();
 
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ChatFrame.fxml"));
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/Chat.fxml"));
 			BorderPane root = (BorderPane) fxmlLoader.load();
-			stage = new Stage();
+			Stage stage = new Stage();
 			Scene scene = new Scene(root);
 			stage.setTitle("DNK Messenger: " + UsersRegistry.getInstance().getCurrentUser().getDisplayName());
 			stage.setScene(scene);
 			stage.show();
-		} catch (Exception e) {
-			e.printStackTrace();
+			
+			listener.setChatController(fxmlLoader.getController());
+			
+			stage.setOnCloseRequest(e -> {
+				System.out.println("Shutting down client application.");
+				Platform.exit();
+				System.exit(0);
+			});
+			
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
 		}
 
+		new Thread(listener).start();
+
 	}
+
 
 }

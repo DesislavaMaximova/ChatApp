@@ -37,13 +37,15 @@ public class ClientRegistry {
 	}
 
 	public void logUserOut(String userName) {
-		clientHandlers.remove(userName);
+		if (userName != null) {
+			clientHandlers.remove(userName);
+		}
 	}
 	
-	public Collection<User> getUsers() {
+	public Collection<User> getUsers(String username) {
 		List<User> users = new LinkedList<User>();
 		
-		for (UserEntity data : UserDAO.getInstance().getAllUsers()) {
+		for (UserEntity data : UserDAO.getInstance().getAllOtherUsers(username)) {
 			if (clientHandlers.containsKey(data.getUserName())) {
 				users.add(new User(data.getUserName(), true, data.getDisplayName()));
 			} else {
@@ -53,7 +55,5 @@ public class ClientRegistry {
 
 		return users;
 	}
-	
-
 
 }

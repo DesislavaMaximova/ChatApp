@@ -25,9 +25,10 @@ public class UserDAO {
 		return INSTANCE_HOLDER;
 	}
 
-	public Collection<UserEntity> getAllUsers() {
+	public Collection<UserEntity> getAllOtherUsers(String username) {
 		try (Session session = SessionManager.getSessionFactory().openSession() ) {
-			return session.createQuery("from UserEntity", UserEntity.class).list();
+			return session.createQuery("from UserEntity where userName != :userName", UserEntity.class)
+					.setParameter("userName", username).list();
 		}
 	}
 	

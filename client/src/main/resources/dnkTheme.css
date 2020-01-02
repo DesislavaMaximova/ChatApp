@@ -1,0 +1,22 @@
+/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+
+.button {
+    -fx-text-fill: white;
+    -fx-font-family: "Arial Narrow";
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(#cccccc, #8c8c8c);
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(#cccccc, #363636);
+}
+
+.root {
+     -fx-background-color: #2e2e2e;
+}
+.label
+{  
+    -fx-text-fill: white;
+    -fx-font: 12px "Segoe UI";
+}

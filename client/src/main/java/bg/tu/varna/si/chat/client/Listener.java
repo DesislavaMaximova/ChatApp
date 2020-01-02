@@ -9,6 +9,8 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import bg.tu.varna.si.chat.client.controller.ChatController;
+import bg.tu.varna.si.chat.model.request.FileContentRequest;
+import bg.tu.varna.si.chat.model.request.FileTransferRequest;
 import bg.tu.varna.si.chat.model.request.MessageRequest;
 import bg.tu.varna.si.chat.model.request.Request;
 import bg.tu.varna.si.chat.model.response.ErrorResponse;
@@ -53,6 +55,7 @@ public class Listener implements Runnable {
 
 	public void send(Request request) {
 		try {
+			System.out.println("Passing by send");
 			outputStream.writeObject(request);
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
@@ -61,6 +64,7 @@ public class Listener implements Runnable {
 	
 	public Response sendAndReceive(Request request) {
 		try {
+			System.out.println("Passing by sendAndReceive");
 			outputStream.writeObject(request);
 			
 			return (Response) inputStream.readObject();
@@ -71,7 +75,16 @@ public class Listener implements Runnable {
 			throw new IllegalStateException(e);
 		}
 	}
-
+	//
+	public void writeResponse(Response response) {
+		try {
+			
+			outputStream.writeObject(response);
+			
+		} catch (IOException e) {
+			System.err.println("Failed writing response: " + e.getLocalizedMessage());
+		}
+	}
 
 	@Override
 	public void run() {
@@ -98,6 +111,25 @@ public class Listener implements Runnable {
 				
 				if (object instanceof MessageRequest) {
 					chatController.receiveMessage((MessageRequest) object);
+				}
+				
+				if(object instanceof FileTransferRequest)
+				{
+				 chatController.AcceptFileRequest((FileTransferRequest)object);
+				 
+				}
+				
+				if(object instanceof Response)
+				{
+					
+						//chatController.SendFileContent();
+					
+				}
+				
+				if(object instanceof FileContentRequest)
+				{
+					System.out.println("Recieved File Content Request from recipient");
+					//chatController.receiveFile((FileContentRequest)object);
 				}
 				
 			} catch (ClassNotFoundException | IOException e) {

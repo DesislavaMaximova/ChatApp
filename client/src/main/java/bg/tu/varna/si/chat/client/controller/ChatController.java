@@ -97,6 +97,7 @@ public class ChatController extends BaseController implements Initializable {
 		chatUserName.setText(user.getDisplayName());
 
 		ListView<String> messages = chats.get(user.getUserName());
+	
 
 		if (messages == null) {
 			messages = new ListView<String>(); 
@@ -105,9 +106,10 @@ public class ChatController extends BaseController implements Initializable {
 
 			chats.put(user.getUserName(), messages);
 		}
-
+		messages.setPrefSize(400, 425);
 		messagePane.getChildren().clear();
 		messagePane.getChildren().add(messages);
+	
 	}
 	
 	public void receiveMessage(MessageRequest message) {

@@ -83,7 +83,7 @@ public class RegisterUserController extends BaseController {
 		UserRegisterRequest registerRequest = new UserRegisterRequest(
 				userName, firstName, lastName, displayName, password);
 		
-		Listener listener = new Listener(ClientLauncher.SERVER_HOST, ClientLauncher.SERVER_PORT);
+		listener = new Listener(ClientLauncher.SERVER_HOST, ClientLauncher.SERVER_PORT);
 		
 		Response response = listener.sendAndReceive(registerRequest);
 		

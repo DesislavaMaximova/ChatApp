@@ -40,6 +40,19 @@ public class UsersRegistry {
 		this.currentUser = currentUser;
 	}
 	
+	public void updateUser(User updatedUser) {
+		for (User user : users) {
+			if (user.getUserName().equals(updatedUser.getUserName())) {
+				user.setActive(updatedUser.isActive());
+				user.setDisplayName(updatedUser.getDisplayName());
+				user.setUserName(updatedUser.getUserName());
+				return;
+			}
+		}
+		
+		users.add(updatedUser);
+	}
+	
 	public User getUser(String userName) {
 		for (User user : users) {
 			if (user.getUserName().equals(userName)) {

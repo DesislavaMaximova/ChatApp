@@ -29,7 +29,6 @@ public class FileContentRequestHandler extends RequestHandler {
 		if (recipientClientHandler != null) {
 			recipientClientHandler.sendRequest(file);
 			FileDAO.getInstanceHolder().storeFile(file);
-
 		}
 
 		return new AcknowledgeResponse("OK!");

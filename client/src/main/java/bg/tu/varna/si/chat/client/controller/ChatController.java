@@ -1,18 +1,26 @@
 package bg.tu.varna.si.chat.client.controller;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
+import bg.tu.varna.si.chat.client.UsersRegistry;
+import bg.tu.varna.si.chat.model.User;
+import bg.tu.varna.si.chat.model.request.FileContentRequest;
+import bg.tu.varna.si.chat.model.request.MessageRequest;
+import bg.tu.varna.si.chat.model.request.StatusUpdateRequest;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,13 +38,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextBuilder;
 import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
-import bg.tu.varna.si.chat.client.UsersRegistry;
-import bg.tu.varna.si.chat.model.User;
-import bg.tu.varna.si.chat.model.request.FileTransferRequest;
-import bg.tu.varna.si.chat.model.request.MessageRequest;
-import bg.tu.varna.si.chat.model.response.FileTransferResponse;
 
 public class ChatController extends BaseController implements Initializable {
 
@@ -54,308 +58,308 @@ public class ChatController extends BaseController implements Initializable {
 
 	@FXML
 	private Label chatUserName;
-	
+
 	@FXML
 	private Button sendFileButton;
-	
-	@FXML
-	private ListView<String> messages;
 
-
-	private Map<String, ListView<String>> chats = 
-			new ConcurrentHashMap<String, ListView<String>>();
+	private Map<String, ListView<Text>> chats = new ConcurrentHashMap<String, ListView<Text>>();
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
-
 		Platform.runLater(() -> {
-			ObservableList<User> users = FXCollections.observableList(
-					UsersRegistry.getInstance().getUsers());
+			ObservableList<User> users = FXCollections.observableList(UsersRegistry.getInstance().getUsers());
 			userList.setItems(users);
+			userList.setCellFactory(new CellUser());
 		});
 
 		sendMessageButton.setDisable(true);
+		sendFileButton.setDisable(true);
 	}
-	
-	//redone 
-		@FXML
-		protected void sendMessageButtonPressed(ActionEvent event) throws Exception {
 
+	// redone
+	@FXML
+	protected void sendMessageButtonPressed(ActionEvent event) throws Exception {
+
+		sendMessage();
+	}
+
+	// Created // Sending messages via pressing Enter Key
+	@FXML
+	protected void onEnterPressed(KeyEvent ke) throws Exception {
+		if (ke.getCode().equals(KeyCode.ENTER)) {
 			sendMessage();
-		}	
-		
-		//Created // Sending messages via pressing Enter Key
-		@FXML
-		protected void onEnterPressed(KeyEvent ke)
-				throws Exception {
-			if (ke.getCode().equals(KeyCode.ENTER)) {
-				sendMessage();
-			}
-			if(ke.getCode().equals(KeyCode.F1))
-			{
-				sendFileButtonClicked(null);
-			}
 		}
-	
-	//Created new
-		private void sendMessage()
-		{
-			if (userInputMessage.getText().isEmpty()) {
-				return;
-			}
+		if (ke.getCode().equals(KeyCode.F1)) {
+			sendFileButtonClicked(null);
+		}
+	}
 
-			// send message button clicked
-			String sender = UsersRegistry.getInstance().getCurrentUser().getUserName();
-			String recipient = userList.getSelectionModel().getSelectedItem().getUserName();
-
-			MessageRequest message = new MessageRequest(userInputMessage.getText().toString(), recipient, sender);
-
-			listener.send(message);
-			
-			chats.get(recipient).getItems().add(
-					UsersRegistry.getInstance().getCurrentUser().getDisplayName()
-					+ ": " +
-					userInputMessage.getText()
-					);
-			SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-			String time = format.format(message.getTimeStamp());
-
-			WriteToFile("[" + time + "] " + sender + ": " + userInputMessage.getText().toString(),
-					UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + recipient + "_ChatHistory.txt");
-				
-			
-			userInputMessage.clear();
-
+	// Created new
+	private void sendMessage() {
+		if (userInputMessage.getText().isEmpty()) {
+			return;
 		}
 
-		File selectedFiles = null;
-		@FXML
-		protected void sendFileButtonClicked(ActionEvent event) throws Exception {
-			
-			String sender = UsersRegistry.getInstance().getCurrentUser().getUserName();
-			String recipient = userList.getSelectionModel().getSelectedItem().getDisplayName();
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Open File Dialog");
-			// putting Extension Filters
-			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Text Files", "*.txt"));
-			 selectedFiles = fileChooser.showOpenDialog(null);
+		// send message button clicked
+		String sender = UsersRegistry.getInstance().getCurrentUser().getUserName();
+		String recipient = userList.getSelectionModel().getSelectedItem().getUserName();
 
-			// for debugging: showing selected item/s name
-			if (selectedFiles != null)
-			{
+		MessageRequest message = new MessageRequest(userInputMessage.getText().toString(), recipient, sender);
 
-				System.out.println(selectedFiles.getName());
-			 
-						listener.send(new FileTransferRequest(recipient,sender,selectedFiles.getName(),(int) selectedFiles.length()));
-					
-		
-			}
+		listener.send(message);
+		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+		String time = format.format(message.getTimeStamp());
 
-		}
+		chats.get(recipient).getItems().add(formatText("", "[", time, "] ",
+				UsersRegistry.getInstance().getCurrentUser().getDisplayName(), ": ", userInputMessage.getText()));
+
+		writeToFile("[" + time + "] " + sender + ": " + userInputMessage.getText().toString(),
+				UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + recipient + "_ChatHistory.txt");
+
+		userInputMessage.clear();
+
+	}
 
 	@FXML
 	protected void selectedItem(MouseEvent click) {
-		// selected item from TreeView
+
 		User selectedUser = userList.getSelectionModel().getSelectedItem();
 
 		if (selectedUser != null && selectedUser.getUserName() != null) {
 			loadChat(selectedUser);
 			sendMessageButton.setDisable(false);
+			sendFileButton.setDisable(false);
 		} else {
 			sendMessageButton.setDisable(true);
-		}ReadFromFile(
-				UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + selectedUser + "_ChatHistory.txt");
+			sendFileButton.setDisable(true);
+		}
 
-		
 	}
 
 	private void loadChat(User user) {
 		chatUserName.setText(user.getDisplayName());
 
-		ListView<String> messages = chats.get(user.getUserName());
-
+		ListView<Text> messages = chats.get(user.getUserName());
 		if (messages == null) {
-			messages = new ListView<String>(); 
+			messages = new ListView<Text>();
 
-			messages.getItems().add("Conversation with " + user.getDisplayName());
+			messages.getItems().add(formatText("-fx-font-weight:bold;", "Conversation with ", user.getDisplayName()));
 
 			chats.put(user.getUserName(), messages);
+
+			readFromFile(UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + user + "_ChatHistory.txt");
+
 		}
-		messages.setPrefSize(1064, 632);
+		messages.setPrefSize(440, 480);
 		messagePane.getChildren().clear();
 		messagePane.getChildren().add(messages);
 	}
-	
+
 	public void receiveMessage(MessageRequest message) {
-		
+
 		Platform.runLater(() -> {
-			
+
 			User sender = UsersRegistry.getInstance().getUser(message.getSenderName());
-			
+
 			loadChat(sender);
-			
+
 			userList.getSelectionModel().select(sender);
-			
-			chats.get(sender.getUserName()).getItems().add(
-					sender.getDisplayName() +  ": " +
-					message.getMessageContent()
-					);
-		
-		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-		String time = format.format(message.getTimeStamp());
-		if (chatUserName.getText().compareTo(message.getSenderName()) == 0) {
-			
-		
+			SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+			String time = format.format(message.getTimeStamp());
 
-			WriteToFile("[" + time + "]: " + message.getSenderName() + ": " + message.getMessageContent(),
-					UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + message.getSenderName()
-							+ "_ChatHistory.txt");
+			chats.get(sender.getUserName()).getItems()
+			.add(formatText("", "[", time, "]: ", sender.getDisplayName(), ": ", message.getMessageContent()));
 
-		} else {
-			WriteToFile("[" + time + "]: " + message.getSenderName() + ": " + message.getMessageContent(),
-					UsersRegistry.getInstance().getCurrentUser().getUserName() + "_"
-							+  message.getSenderName() + "_ChatHistory.txt");
+			if (chatUserName.getText().compareTo(message.getSenderName()) == 0) {
+
+				writeToFile("[" + time + "]: " + message.getSenderName() + ": " + message.getMessageContent(),
+						UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + message.getSenderName()
+						+ "_ChatHistory.txt");
+
+			} else {
+				writeToFile("[" + time + "]: " + message.getSenderName() + ": " + message.getMessageContent(),
+						UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + message.getSenderName()
+						+ "_ChatHistory.txt");
+			}
+
+		});
+	}
+
+	public void updateUserStatus(StatusUpdateRequest statusUpdateRequest) {
+
+		Platform.runLater(() -> {
+			UsersRegistry.getInstance().updateUser(statusUpdateRequest.getUser());
+			
+			userList.getItems().remove(statusUpdateRequest.getUser());
+			userList.getItems().add(statusUpdateRequest.getUser());
+			userList.refresh();
+		});
+
+	}
+
+	@FXML
+	protected void sendFileButtonClicked(ActionEvent event) throws Exception {
+
+		String sender = UsersRegistry.getInstance().getCurrentUser().getUserName();
+		String recipient = userList.getSelectionModel().getSelectedItem().getDisplayName();
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open File Dialog");
+		File selectedFiles = fileChooser.showOpenDialog(null);
+
+		if (selectedFiles != null) {
+
+			try {
+				File fileToBeTransfered = new File(selectedFiles.getAbsolutePath());
+				FileContentRequest fileRequest = new FileContentRequest(selectedFiles.getName(), recipient, sender,
+						Files.readAllBytes(fileToBeTransfered.toPath()));
+				System.out.println("Sending file request");
+				listener.send(fileRequest);
+				System.out.println(selectedFiles.getName());
+
+				chats.get(recipient).getItems()
+				.add(formatText("-fx-font-weight:bold;", "You have send file " + fileToBeTransfered.getName()
+				+ " to:  " + userList.getSelectionModel().getSelectedItem().getDisplayName()));
+
+			} catch (IOException e) {
+				System.out.println("Can't read file with name: " + selectedFiles.getName());
+				e.printStackTrace();
+			}
 
 		}
 
-	});
-}
+	}
 
+	public void acceptFileRequest(FileContentRequest request) {
 
-FileTransferResponse response; 
-public void AcceptFileRequest(FileTransferRequest request)
-{
-	
-	
-	Platform.runLater(() -> {
-		System.out.println("Got a File Transfer Request");
-		User sender = UsersRegistry.getInstance().getUser(request.getSender());
-		 
-		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-		alert.setTitle("Incomming File from "+ sender);
-		alert.setContentText("Save?");
-		ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-		ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
-	
-		alert.getButtonTypes().setAll(okButton, noButton);
-		alert.showAndWait().ifPresent(type -> {
-		        if (type == okButton) {
-		        	System.out.println("File Transfer Request Accepted");
-		        	response = new FileTransferResponse();
-					response.setApproved(true);
-					response.setMessage(request.getFileName());
-					System.out.println("Recieved"+response);
-					System.out.println("Sending response: "+ response);
-				 	listener.writeResponse(response);
-					
-		        }
-		        else {
-		         	System.out.println("File Transfer Request Not Accepted");
-		         	response = new FileTransferResponse();
-		         	response.setApproved(false);
-		         	response.setMessage("Not Accepted");
-		         	System.out.println("Recieved"+response);
-		         	System.out.println("Sending response");
-		         	listener.writeResponse(response);
-		        } 
+		Platform.runLater(() -> {
+			System.out.println("Got a File Transfer Request");
+			User sender = UsersRegistry.getInstance().getUser(request.getSender());
+
+			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+			alert.setTitle("Incoming file request from" + sender);
+			alert.setContentText("Do you want to save it?");
+			ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+			ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+
+			alert.getButtonTypes().setAll(okButton, noButton);
+			alert.showAndWait().ifPresent(type -> {
+
+				if (type == okButton) {
+
+					userList.getSelectionModel().select(sender);
+					loadChat(sender);
+
+					System.out.println("File Request Accepted!");
+
+					SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+					String time = format.format(request.getTimeStamp());
+					System.out.println(request.getFileName() + " Send By:" + request.getSender() + " With size of:"
+							+ request.getContent());
+					System.out.println(request.getFileName());
+					FileChooser fileChooser = new FileChooser();
+					fileChooser.setTitle("Save File");
+					fileChooser.setInitialFileName(request.getFileName());
+					File file = fileChooser.showSaveDialog(null);
+
+					if (file != null) {
+						byte[] content = request.getContent();
+						try (FileOutputStream fos = new FileOutputStream(file)) {
+							fos.write(content);
+
+						} catch (IOException ioe) {
+
+						}
+					}
+
+					chats.get(sender.getUserName()).getItems().add(formatText("-fx-font-weight:bold;",
+							"You have recieved file with name  ", file.getName(), " from ", sender.getDisplayName()));
+
+				} else {
+					System.out.println("File Transfer Request Not Accepted");
+
+				}
+
+			});
+
 		});
-	
-	});
-	
-	
-	    
-}
 
-/*public void SendFileContent() throws FileNotFoundException
-{
-	String recipient = userList.getSelectionModel().getSelectedItem().getUserName();
-	 Scanner scanner =
-		      new Scanner(selectedFiles);
-	scanner.useDelimiter("\\Z");
-		    String contents = scanner.next();
-		    System.out.println(contents);
-		    scanner.close();
-	 FileContentRequest fileRequest = new FileContentRequest(selectedFiles.getAbsolutePath(),recipient,UsersRegistry.getInstance().getCurrentUser().getUserName());
-	
-	System.out.println("Sending file request");
-		listener.send(fileRequest);
-}
-	
-
-public void receiveFile(FileContentRequest file)
-{
-	
-	 BufferedWriter writer = null;
-	
-	SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-	String time = format.format(file.getTimeStamp());
-	 System.out.println(file.getFileName()+" Send By:"+file.getSender()+" With size of:"+file.getContent());
-	   String s = new String(file.getContent());
-	   System.out.println(s);
-	System.out.println(file.getFileName());
-	    File newTextFile = new File(System.getProperty("user.home")  + File.separatorChar + "My Documents"+ File.separatorChar+"["+time+"]"+".txt");
-	   try
-	   {
-	       writer = new BufferedWriter( new FileWriter(newTextFile));
-	       writer.write(s);
-
-	   }
-	   catch ( IOException e)
-	   {
-	   }
-	   finally
-	   {
-	       try
-	       {
-	           if ( writer != null)
-	           writer.close();
-	       }
-	       catch ( IOException e)
-	       {
-	       }
-	   }
-	
-        
-        System.out.println("File saved to: "+System.getProperty("user.home") + File.separatorChar + "My Documents"+ File.separatorChar +"["+time+"]"+".txt" );
-	
-
-}
-*/
-public void WriteToFile(String content, String FileName) {
-	String directory = System.getProperty("user.home");
-	try (FileWriter fileWriter = new FileWriter(directory + File.separator + FileName, true)) {
-		String fileContent = content;
-		fileWriter.write(fileContent + System.lineSeparator());
-
-	} catch (IOException e) {
-		System.out.println("Error Writing to file!");
 	}
-}
 
-void ReadFromFile(String FileName) {
-	
-	try{
+	public void receiveFile(FileContentRequest file) {
+
+		BufferedWriter writer = null;
 		
+	
+		System.out.println(file.getFileName() + " Send By:" + file.getSender() + " With size of:" + file.getContent());
+		String s = new String(file.getContent());
+		System.out.println(s);
+		System.out.println(file.getFileName());
+		File newTextFile = new File(System.getProperty("user.home") + File.separatorChar + "My Documents"
+				+ File.separatorChar + file.getFileName());
+		try {
+			writer = new BufferedWriter(new FileWriter(newTextFile));
+			writer.write(s);
+
+		} catch (IOException e) {
+		} finally {
+			try {
+				if (writer != null)
+					writer.close();
+			} catch (IOException e) {
+			}
+		}
+
+		System.out.println("File saved to: " + System.getProperty("user.home") + File.separatorChar + "My Documents"
+				+ File.separatorChar + file.getFileName());
+
+	}
+
+	public void writeToFile(String content, String FileName) {
 		String directory = System.getProperty("user.home");
-		
-		String recipient = userList.getSelectionModel().getSelectedItem().getUserName();
-		
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(directory + File.separator + FileName), "Cp1252"), 100);
-		
-		String line;
-		    
-          while ((line = br.readLine()) != null) {  
-        	  
-			chats.get(recipient).getItems().add(line);
-          }
-          
-          br.close();	
+		try (FileWriter fileWriter = new FileWriter(directory + File.separator + FileName, true)) {
+			String fileContent = content;
+			fileWriter.write(fileContent + System.lineSeparator());
 
-	} catch (FileNotFoundException e) {
-		System.out.println("File with name " + FileName + "not Found!");
-	} catch (IOException e) {
-		System.out.println("Error read to file!");
+		} catch (IOException e) {
+			System.out.println("Error Writing to file!");
+		}
 	}
-}
+
+	void readFromFile(String FileName) {
+
+		try {
+
+			String directory = System.getProperty("user.home");
+
+			String recipient = userList.getSelectionModel().getSelectedItem().getUserName();
+
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(new FileInputStream(directory + File.separator + FileName), "Cp1252"), 100);
+
+			String line;
+
+			while ((line = br.readLine()) != null) {
+
+				chats.get(recipient).getItems().add(formatText("", line));
+			}
+
+			br.close();
+
+		} catch (FileNotFoundException e) {
+			System.out.println("File with name " + FileName + "not Found!");
+		} catch (IOException e) {
+			System.out.println("Error read to file!");
+		}
+	}
+
+	private Text formatText(String style, String... parts) {
+		StringBuilder builder = new StringBuilder();
+		for (String part : parts) {
+			builder.append(part);
+		}
+
+		return TextBuilder.create().text(builder.toString()).style(style).build();
+	}
+
 }

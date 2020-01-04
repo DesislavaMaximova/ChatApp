@@ -20,6 +20,7 @@ public final class RequestHandlerFactory {
 		
 		RequestType requestType = request.getRequestType();
 		
+		
 		switch (requestType) {
 		case LOGIN_REQUEST:
 			return new LoginHandler();
@@ -30,8 +31,8 @@ public final class RequestHandlerFactory {
 		case MESSAGE_REQUEST:
 			return new MessageHandler();
 			
-		case FILE_TRANSFER_REQUEST:
-			return new FileTransferRequestHandler();
+		case FILE_CONTENT_REQUEST:
+			return new FileContentRequestHandler();
 
 		default:
 			throw new UnsupportedRequestException(ErrorType.UNSUPPORTED_REQUEST, "Unsupported request [" + requestType + "]");

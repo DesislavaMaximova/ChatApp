@@ -19,10 +19,6 @@ public class User extends Recipient {
 		this.displayName = displayName;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-
 	public String getUserName() {
 		return userName;
 	}
@@ -34,10 +30,48 @@ public class User extends Recipient {
 	public String getDisplayName() {
 		return displayName;
 	}
+	
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
 	@Override
 	public String toString() {
 		return this.displayName;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		return true;
+	}
+	
 	
 }

@@ -56,8 +56,27 @@ public class MessageDAO {
 
 	public Collection<MessageEntity> getUndeliveredMessages(String username) {
 		try (Session session = SessionManager.getSessionFactory().openSession()) {
-			return session.createQuery("from MessageEntity where recipientName = :recipientName and delivered = false",
-					MessageEntity.class).list();
+			return session.createQuery("from MessageEntity where recipient = :recipient and delivered = false",
+					MessageEntity.class).setParameter("recipient", username).list();
+		}
+	}
+
+	public void setDelivered(Collection<MessageEntity> undeliveredMessages) {
+		
+		Transaction transaction = null;
+		try (Session session = SessionManager.getSessionFactory().openSession()) {
+			transaction = session.beginTransaction();
+			
+			for (MessageEntity entity : undeliveredMessages) {
+				entity.setDelivered(true);
+				session.update(entity);
+			}
+
+			transaction.commit();
+			
+		} catch (Exception e) {
+			transaction.rollback();
+			e.printStackTrace();
 		}
 	}
 

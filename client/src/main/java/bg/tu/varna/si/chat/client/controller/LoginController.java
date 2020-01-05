@@ -93,11 +93,16 @@ public class LoginController extends BaseController {
 		LoginRequest login = new LoginRequest(credentials);
 
 		Response response = listener.sendAndReceive(login);
+		
+		LoginResponse loginResponse = null;
 
 		if (ResponseType.LOGIN == response.getResponseType()) {
-			LoginResponse loginResponse = (LoginResponse) response;
+			loginResponse = (LoginResponse) response;
 			UsersRegistry.getInstance().setUsers(new LinkedList<>(loginResponse.getUsers()));
 			UsersRegistry.getInstance().setCurrentUser(loginResponse.getCurrentUser());
+			
+			System.out.println("\n\n\n Undelivered messages \n");
+			System.out.println(loginResponse.getUndeliveredMessages());
 		}
 
 		if (ResponseType.ERROR == response.getResponseType()) {
@@ -112,13 +117,17 @@ public class LoginController extends BaseController {
 
 			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/Chat.fxml"));
 			BorderPane root = (BorderPane) fxmlLoader.load();
+			
+			ChatController chatController = fxmlLoader.<ChatController>getController();
+			chatController.setUndeliveredMessages(loginResponse.getUndeliveredMessages());
+			
 			Stage stage = new Stage();
 			Scene scene = new Scene(root);
 			stage.setTitle("DNK Messenger: " + UsersRegistry.getInstance().getCurrentUser().getDisplayName());
 			stage.setScene(scene);
 			stage.show();
 			
-			listener.setChatController(fxmlLoader.getController());
+			listener.setChatController(chatController);
 			
 			stage.setOnCloseRequest(e -> {
 				System.out.println("Shutting down client application.");

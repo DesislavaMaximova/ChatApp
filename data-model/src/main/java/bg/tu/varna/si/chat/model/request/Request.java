@@ -9,7 +9,7 @@ public class Request implements Serializable {
 
 	private final RequestType requestType;
 	
-	private final Date timeStamp;
+	protected Date timeStamp;
 
 	public Request(RequestType requestType) {
 		this.requestType = requestType;
@@ -23,5 +23,6 @@ public class Request implements Serializable {
 	public Date getTimeStamp() {
 		return timeStamp;
 	}
+	
 	
 }

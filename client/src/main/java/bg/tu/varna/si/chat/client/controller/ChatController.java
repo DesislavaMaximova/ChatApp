@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +44,12 @@ import javafx.scene.text.TextBuilder;
 import javafx.stage.FileChooser;
 
 public class ChatController extends BaseController implements Initializable {
+	
+	private static final String CHAT_HISTORY_DIRECTORY = 
+			System.getProperty("user.home") + 
+			File.separator +
+			"chatHistory" +
+			File.separator;
 
 	@FXML
 	private Pane messagePane;
@@ -61,6 +68,8 @@ public class ChatController extends BaseController implements Initializable {
 
 	@FXML
 	private Button sendFileButton;
+	
+	private Collection<MessageRequest> undeliveredMessageRequests;
 
 	private Map<String, ListView<Text>> chats = new ConcurrentHashMap<String, ListView<Text>>();
 
@@ -71,6 +80,15 @@ public class ChatController extends BaseController implements Initializable {
 			ObservableList<User> users = FXCollections.observableList(UsersRegistry.getInstance().getUsers());
 			userList.setItems(users);
 			userList.setCellFactory(new CellUser());
+			
+			for (User user : userList.getItems()) {
+				loadChat(user);
+			}
+			
+			for (MessageRequest request : undeliveredMessageRequests) {
+				receiveMessage(request);
+			}
+			
 		});
 
 		sendMessageButton.setDisable(true);
@@ -102,20 +120,20 @@ public class ChatController extends BaseController implements Initializable {
 		}
 
 		// send message button clicked
-		String sender = UsersRegistry.getInstance().getCurrentUser().getUserName();
-		String recipient = userList.getSelectionModel().getSelectedItem().getUserName();
+		User sender = UsersRegistry.getInstance().getCurrentUser();
+		User recipient = userList.getSelectionModel().getSelectedItem();
 
-		MessageRequest message = new MessageRequest(userInputMessage.getText().toString(), recipient, sender);
+		MessageRequest message = new MessageRequest(userInputMessage.getText().toString(), recipient.getUserName(), sender.getUserName());
 
 		listener.send(message);
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 		String time = format.format(message.getTimeStamp());
 
-		chats.get(recipient).getItems().add(formatText("", "[", time, "] ",
-				UsersRegistry.getInstance().getCurrentUser().getDisplayName(), ": ", userInputMessage.getText()));
+		chats.get(recipient.getUserName()).getItems().add(formatText("", "[", time, "] ",
+				sender.getDisplayName(), ": ", userInputMessage.getText()));
 
-		writeToFile("[" + time + "] " + sender + ": " + userInputMessage.getText().toString(),
-				UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + recipient + "_ChatHistory.txt");
+		writeToFile("[" + time + "] " + sender.getDisplayName() + ": " + userInputMessage.getText().toString(),
+				sender.getUserName() + "_" + recipient.getUserName() + "_ChatHistory.txt");
 
 		userInputMessage.clear();
 
@@ -138,6 +156,7 @@ public class ChatController extends BaseController implements Initializable {
 	}
 
 	private void loadChat(User user) {
+
 		chatUserName.setText(user.getDisplayName());
 
 		ListView<Text> messages = chats.get(user.getUserName());
@@ -148,7 +167,8 @@ public class ChatController extends BaseController implements Initializable {
 
 			chats.put(user.getUserName(), messages);
 
-			readFromFile(UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + user + "_ChatHistory.txt");
+			readFromFile(user.getUserName(), 
+					UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + user.getUserName() + "_ChatHistory.txt");
 
 		}
 		messages.setPrefSize(440, 480);
@@ -161,27 +181,21 @@ public class ChatController extends BaseController implements Initializable {
 		Platform.runLater(() -> {
 
 			User sender = UsersRegistry.getInstance().getUser(message.getSenderName());
-
+			userList.getSelectionModel().select(sender);
 			loadChat(sender);
 
-			userList.getSelectionModel().select(sender);
+
 			SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 			String time = format.format(message.getTimeStamp());
 
 			chats.get(sender.getUserName()).getItems()
 			.add(formatText("", "[", time, "]: ", sender.getDisplayName(), ": ", message.getMessageContent()));
 
-			if (chatUserName.getText().compareTo(message.getSenderName()) == 0) {
+		
 
-				writeToFile("[" + time + "]: " + message.getSenderName() + ": " + message.getMessageContent(),
+				writeToFile("[" + time + "]: " + sender.getDisplayName() + ": " + message.getMessageContent(),
 						UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + message.getSenderName()
-						+ "_ChatHistory.txt");
-
-			} else {
-				writeToFile("[" + time + "]: " + message.getSenderName() + ": " + message.getMessageContent(),
-						UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + message.getSenderName()
-						+ "_ChatHistory.txt");
-			}
+						+ "_ChatHistory.txt");		
 
 		});
 	}
@@ -190,7 +204,7 @@ public class ChatController extends BaseController implements Initializable {
 
 		Platform.runLater(() -> {
 			UsersRegistry.getInstance().updateUser(statusUpdateRequest.getUser());
-			
+
 			userList.getItems().remove(statusUpdateRequest.getUser());
 			userList.getItems().add(statusUpdateRequest.getUser());
 			userList.refresh();
@@ -229,6 +243,10 @@ public class ChatController extends BaseController implements Initializable {
 		}
 
 	}
+	
+	public void setUndeliveredMessages(Collection<MessageRequest> undeliveredMessageRequests) {
+		this.undeliveredMessageRequests = undeliveredMessageRequests;
+	}
 
 	public void acceptFileRequest(FileContentRequest request) {
 
@@ -237,7 +255,7 @@ public class ChatController extends BaseController implements Initializable {
 			User sender = UsersRegistry.getInstance().getUser(request.getSender());
 
 			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-			alert.setTitle("Incoming file request from" + sender);
+			alert.setTitle("Incoming file request from " + sender);
 			alert.setContentText("Do you want to save it?");
 			ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
 			ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
@@ -250,13 +268,6 @@ public class ChatController extends BaseController implements Initializable {
 					userList.getSelectionModel().select(sender);
 					loadChat(sender);
 
-					System.out.println("File Request Accepted!");
-
-					SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-					String time = format.format(request.getTimeStamp());
-					System.out.println(request.getFileName() + " Send By:" + request.getSender() + " With size of:"
-							+ request.getContent());
-					System.out.println(request.getFileName());
 					FileChooser fileChooser = new FileChooser();
 					fileChooser.setTitle("Save File");
 					fileChooser.setInitialFileName(request.getFileName());
@@ -289,8 +300,8 @@ public class ChatController extends BaseController implements Initializable {
 	public void receiveFile(FileContentRequest file) {
 
 		BufferedWriter writer = null;
-		
-	
+
+
 		System.out.println(file.getFileName() + " Send By:" + file.getSender() + " With size of:" + file.getContent());
 		String s = new String(file.getContent());
 		System.out.println(s);
@@ -315,33 +326,27 @@ public class ChatController extends BaseController implements Initializable {
 
 	}
 
-	public void writeToFile(String content, String FileName) {
-		String directory = System.getProperty("user.home");
-		try (FileWriter fileWriter = new FileWriter(directory + File.separator + FileName, true)) {
-			String fileContent = content;
-			fileWriter.write(fileContent + System.lineSeparator());
+	private void writeToFile(String content, String FileName) {
+		try (FileWriter fileWriter = new FileWriter(CHAT_HISTORY_DIRECTORY + FileName, true)) {
+			fileWriter.write(content + System.lineSeparator());
 
 		} catch (IOException e) {
 			System.out.println("Error Writing to file!");
 		}
 	}
 
-	void readFromFile(String FileName) {
+	private void readFromFile(String collocutor, String FileName) {
 
 		try {
 
-			String directory = System.getProperty("user.home");
-
-			String recipient = userList.getSelectionModel().getSelectedItem().getUserName();
-
 			BufferedReader br = new BufferedReader(
-					new InputStreamReader(new FileInputStream(directory + File.separator + FileName), "Cp1252"), 100);
+					new InputStreamReader(new FileInputStream(CHAT_HISTORY_DIRECTORY + FileName), "Cp1252"), 100);
 
 			String line;
 
 			while ((line = br.readLine()) != null) {
 
-				chats.get(recipient).getItems().add(formatText("", line));
+				chats.get(collocutor).getItems().add(formatText("", line));
 			}
 
 			br.close();

@@ -1,5 +1,7 @@
 package bg.tu.varna.si.chat.model.request;
 
+import java.util.Date;
+
 public class MessageRequest extends Request {
 
 	private static final long serialVersionUID = 4141594803871656267L;
@@ -17,6 +19,14 @@ public class MessageRequest extends Request {
 		this.messageContent = messageContent;
 		this.recipientName = recipientName;
 		this.senderName = senderName;
+	}
+	
+	public MessageRequest(String messageContent, String recipientName, String senderName, Date timeStamp) {
+		super(RequestType.MESSAGE_REQUEST);
+		this.messageContent = messageContent;
+		this.recipientName = recipientName;
+		this.senderName = senderName;
+		this.timeStamp = timeStamp;
 	}
 
 	public String getMessageContent() {

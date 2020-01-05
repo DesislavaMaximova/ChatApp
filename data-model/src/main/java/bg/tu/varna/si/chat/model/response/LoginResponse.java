@@ -3,6 +3,7 @@ package bg.tu.varna.si.chat.model.response;
 import java.util.Collection;
 
 import bg.tu.varna.si.chat.model.User;
+import bg.tu.varna.si.chat.model.request.MessageRequest;
 
 public class LoginResponse extends Response {
 
@@ -12,10 +13,15 @@ public class LoginResponse extends Response {
 	
 	private Collection<User> users;
 	
-	public LoginResponse(User currentUser, Collection<User> users) {
+	private Collection <MessageRequest> undeliveredMessages;
+	
+	public LoginResponse(User currentUser, 
+			Collection<User> users, 
+			Collection<MessageRequest> undeliveredMessages) {
 		super(ResponseType.LOGIN);
 		this.currentUser = currentUser;
 		this.users = users;
+		this.undeliveredMessages = undeliveredMessages;
 	}
 	
 	@Override
@@ -31,6 +37,10 @@ public class LoginResponse extends Response {
 		return users;
 	}
 
+	public Collection<MessageRequest> getUndeliveredMessages() {
+		return undeliveredMessages;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -38,6 +48,8 @@ public class LoginResponse extends Response {
 		builder.append(currentUser);
 		builder.append(", users=");
 		builder.append(users);
+		builder.append(", undeliveredMessages=");
+		builder.append(undeliveredMessages);
 		builder.append("]");
 		return builder.toString();
 	}

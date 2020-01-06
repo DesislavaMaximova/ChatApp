@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -44,12 +45,9 @@ import javafx.scene.text.TextBuilder;
 import javafx.stage.FileChooser;
 
 public class ChatController extends BaseController implements Initializable {
-	
-	private static final String CHAT_HISTORY_DIRECTORY = 
-			System.getProperty("user.home") + 
-			File.separator +
-			"chatHistory" +
-			File.separator;
+
+	private static final String CHAT_HISTORY_DIRECTORY = System.getProperty("user.home") + File.separator
+			+ "chatHistory" + File.separator;
 
 	@FXML
 	private Pane messagePane;
@@ -68,7 +66,7 @@ public class ChatController extends BaseController implements Initializable {
 
 	@FXML
 	private Button sendFileButton;
-	
+
 	private Collection<MessageRequest> undeliveredMessageRequests;
 
 	private Map<String, ListView<Text>> chats = new ConcurrentHashMap<String, ListView<Text>>();
@@ -80,19 +78,20 @@ public class ChatController extends BaseController implements Initializable {
 			ObservableList<User> users = FXCollections.observableList(UsersRegistry.getInstance().getUsers());
 			userList.setItems(users);
 			userList.setCellFactory(new CellUser());
-			
+
 			for (User user : userList.getItems()) {
 				loadChat(user);
 			}
-			
+
 			for (MessageRequest request : undeliveredMessageRequests) {
 				receiveMessage(request);
 			}
-			
+
 		});
 
 		sendMessageButton.setDisable(true);
 		sendFileButton.setDisable(true);
+		userInputMessage.setDisable(true);
 	}
 
 	// redone
@@ -123,14 +122,15 @@ public class ChatController extends BaseController implements Initializable {
 		User sender = UsersRegistry.getInstance().getCurrentUser();
 		User recipient = userList.getSelectionModel().getSelectedItem();
 
-		MessageRequest message = new MessageRequest(userInputMessage.getText().toString(), recipient.getUserName(), sender.getUserName());
+		MessageRequest message = new MessageRequest(userInputMessage.getText().toString(), recipient.getUserName(),
+				sender.getUserName());
 
 		listener.send(message);
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 		String time = format.format(message.getTimeStamp());
 
-		chats.get(recipient.getUserName()).getItems().add(formatText("", "[", time, "] ",
-				sender.getDisplayName(), ": ", userInputMessage.getText()));
+		chats.get(recipient.getUserName()).getItems()
+				.add(formatText("", "[", time, "] ", sender.getDisplayName(), ": ", userInputMessage.getText()));
 
 		writeToFile("[" + time + "] " + sender.getDisplayName() + ": " + userInputMessage.getText().toString(),
 				sender.getUserName() + "_" + recipient.getUserName() + "_ChatHistory.txt");
@@ -148,9 +148,12 @@ public class ChatController extends BaseController implements Initializable {
 			loadChat(selectedUser);
 			sendMessageButton.setDisable(false);
 			sendFileButton.setDisable(false);
+			userInputMessage.setDisable(false);
+
 		} else {
 			sendMessageButton.setDisable(true);
 			sendFileButton.setDisable(true);
+			userInputMessage.setDisable(true);
 		}
 
 	}
@@ -167,8 +170,8 @@ public class ChatController extends BaseController implements Initializable {
 
 			chats.put(user.getUserName(), messages);
 
-			readFromFile(user.getUserName(), 
-					UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + user.getUserName() + "_ChatHistory.txt");
+			readFromFile(user.getUserName(), UsersRegistry.getInstance().getCurrentUser().getUserName() + "_"
+					+ user.getUserName() + "_ChatHistory.txt");
 
 		}
 		messages.setPrefSize(440, 480);
@@ -184,18 +187,15 @@ public class ChatController extends BaseController implements Initializable {
 			userList.getSelectionModel().select(sender);
 			loadChat(sender);
 
-
 			SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 			String time = format.format(message.getTimeStamp());
 
 			chats.get(sender.getUserName()).getItems()
-			.add(formatText("", "[", time, "]: ", sender.getDisplayName(), ": ", message.getMessageContent()));
+					.add(formatText("", "[", time, "]: ", sender.getDisplayName(), ": ", message.getMessageContent()));
 
-		
-
-				writeToFile("[" + time + "]: " + sender.getDisplayName() + ": " + message.getMessageContent(),
-						UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + message.getSenderName()
-						+ "_ChatHistory.txt");		
+			writeToFile("[" + time + "]: " + sender.getDisplayName() + ": " + message.getMessageContent(),
+					UsersRegistry.getInstance().getCurrentUser().getUserName() + "_" + message.getSenderName()
+							+ "_ChatHistory.txt");
 
 		});
 	}
@@ -232,8 +232,8 @@ public class ChatController extends BaseController implements Initializable {
 				System.out.println(selectedFiles.getName());
 
 				chats.get(recipient).getItems()
-				.add(formatText("-fx-font-weight:bold;", "You have send file " + fileToBeTransfered.getName()
-				+ " to:  " + userList.getSelectionModel().getSelectedItem().getDisplayName()));
+						.add(formatText("-fx-font-weight:bold;", "You have send file " + fileToBeTransfered.getName()
+								+ " to:  " + userList.getSelectionModel().getSelectedItem().getDisplayName()));
 
 			} catch (IOException e) {
 				System.out.println("Can't read file with name: " + selectedFiles.getName());
@@ -243,7 +243,7 @@ public class ChatController extends BaseController implements Initializable {
 		}
 
 	}
-	
+
 	public void setUndeliveredMessages(Collection<MessageRequest> undeliveredMessageRequests) {
 		this.undeliveredMessageRequests = undeliveredMessageRequests;
 	}
@@ -301,7 +301,6 @@ public class ChatController extends BaseController implements Initializable {
 
 		BufferedWriter writer = null;
 
-
 		System.out.println(file.getFileName() + " Send By:" + file.getSender() + " With size of:" + file.getContent());
 		String s = new String(file.getContent());
 		System.out.println(s);
@@ -328,6 +327,9 @@ public class ChatController extends BaseController implements Initializable {
 
 	private void writeToFile(String content, String FileName) {
 		try (FileWriter fileWriter = new FileWriter(CHAT_HISTORY_DIRECTORY + FileName, true)) {
+			byte [] contentInBytes=content.getBytes(StandardCharsets.UTF_8); 
+			content = new String(contentInBytes, StandardCharsets.UTF_8);
+			
 			fileWriter.write(content + System.lineSeparator());
 
 		} catch (IOException e) {

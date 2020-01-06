@@ -100,9 +100,6 @@ public class LoginController extends BaseController {
 			loginResponse = (LoginResponse) response;
 			UsersRegistry.getInstance().setUsers(new LinkedList<>(loginResponse.getUsers()));
 			UsersRegistry.getInstance().setCurrentUser(loginResponse.getCurrentUser());
-			
-			System.out.println("\n\n\n Undelivered messages \n");
-			System.out.println(loginResponse.getUndeliveredMessages());
 		}
 
 		if (ResponseType.ERROR == response.getResponseType()) {

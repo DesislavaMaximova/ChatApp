@@ -27,6 +27,8 @@ public class Listener implements Runnable {
 
 	private ChatController chatController;
 
+
+
 	public Listener(String host, int port) {
 
 		try {
@@ -52,7 +54,7 @@ public class Listener implements Runnable {
 	public void setChatController(ChatController controller) {
 		this.chatController = controller;
 	}
-
+	
 	public void send(Request request) {
 		try {
 			System.out.println("Passing by send");
@@ -124,6 +126,8 @@ public class Listener implements Runnable {
 					chatController.updateUserStatus((StatusUpdateRequest) object);
 
 				}
+			
+			
 
 
 			} catch (ClassNotFoundException | IOException e) {
@@ -131,5 +135,7 @@ public class Listener implements Runnable {
 			}
 		}
 	}
+
+	
 
 }

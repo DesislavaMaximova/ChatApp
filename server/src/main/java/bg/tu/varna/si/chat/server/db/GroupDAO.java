@@ -25,11 +25,11 @@ public class GroupDAO {
 		return INSTANCE_HOLDER;
 	}
 
-	public GroupEntity getGroupEntity(String groupName) {
+	public GroupEntity getGroupEntity(long groupID) {
 		try (Session session = SessionManager.getSessionFactory().openSession()) {
-			return session.createQuery("from GroupEntity where groupName = :groupName", GroupEntity.class)
+			return session.createQuery("from GroupEntity where groupID = :groupID", GroupEntity.class)
 
-					.setParameter("groupName", groupName).getSingleResult();
+					.setParameter("groupID", groupID).getSingleResult();
 		} catch (NoResultException e) {
 			return null;
 		}

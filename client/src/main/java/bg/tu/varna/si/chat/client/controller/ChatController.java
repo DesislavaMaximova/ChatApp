@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,7 +29,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -36,6 +40,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -43,6 +49,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBuilder;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 public class ChatController extends BaseController implements Initializable {
 
@@ -67,6 +74,9 @@ public class ChatController extends BaseController implements Initializable {
 	@FXML
 	private Button sendFileButton;
 
+	@FXML
+	private Button addUser;
+
 	private Collection<MessageRequest> undeliveredMessageRequests;
 
 	private Map<String, ListView<Text>> chats = new ConcurrentHashMap<String, ListView<Text>>();
@@ -88,6 +98,23 @@ public class ChatController extends BaseController implements Initializable {
 			}
 
 		});
+		ImageView imageViewSend = new ImageView();
+		File send = new File("src/main/resources/send.png");	
+		Image imageSend = new Image(send.toURI().toString());
+		imageViewSend.setImage(imageSend);
+		sendMessageButton.setGraphic(imageViewSend);
+		
+		ImageView imageViewFile = new ImageView();
+		File file = new File ("src/main/resources/sendFile.png");
+		Image imageFile = new Image (file.toURI().toString());
+		imageViewFile.setImage(imageFile);
+		sendFileButton.setGraphic(imageViewFile);
+		
+		ImageView imageViewGroup = new ImageView();
+		File group = new File ("src/main/resources/add_participant.png");
+		Image imageGroup = new Image(group.toURI().toString());
+		imageViewGroup.setImage(imageGroup);
+		addUser.setGraphic(imageViewGroup);
 
 		sendMessageButton.setDisable(true);
 		sendFileButton.setDisable(true);
@@ -326,14 +353,20 @@ public class ChatController extends BaseController implements Initializable {
 	}
 
 	private void writeToFile(String content, String FileName) {
-		try (FileWriter fileWriter = new FileWriter(CHAT_HISTORY_DIRECTORY + FileName, true)) {
-			byte [] contentInBytes=content.getBytes(StandardCharsets.UTF_8); 
-			content = new String(contentInBytes, StandardCharsets.UTF_8);
-			
-			fileWriter.write(content + System.lineSeparator());
 
+		try {
+			
+			FileOutputStream fileOS = new FileOutputStream((CHAT_HISTORY_DIRECTORY + FileName), true);
+			
+			OutputStreamWriter writer = new OutputStreamWriter(fileOS, StandardCharsets.UTF_8);
+		
+			writer.append (content + System.lineSeparator());
+			
+			writer.close();
+			
 		} catch (IOException e) {
-			System.out.println("Error Writing to file!");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -342,7 +375,7 @@ public class ChatController extends BaseController implements Initializable {
 		try {
 
 			BufferedReader br = new BufferedReader(
-					new InputStreamReader(new FileInputStream(CHAT_HISTORY_DIRECTORY + FileName), "Cp1252"), 100);
+					new InputStreamReader(new FileInputStream(CHAT_HISTORY_DIRECTORY + FileName), "UTF8"), 100);
 
 			String line;
 
@@ -358,6 +391,32 @@ public class ChatController extends BaseController implements Initializable {
 		} catch (IOException e) {
 			System.out.println("Error read to file!");
 		}
+	}
+
+	@FXML
+	protected void groupChat(ActionEvent event) throws Exception {
+//		Group group = new Group(null);
+//
+//		List<User> groupList = new ArrayList<User>();
+//		User selectedUser = userList.getSelectionModel().getSelectedItem();
+//		groupList.add(selectedUser);
+		
+		
+			try {
+				Stage currentStage = (Stage) addUser.getScene().getWindow();
+				currentStage.close();
+
+				FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/GroupChat.fxml"));
+				Parent root = (Parent) fxmlLoader.load();
+				Stage stage = new Stage();
+				stage.setTitle("Group Chat");
+				stage.setScene(new Scene(root));
+				stage.show();
+			} catch (IOException e) {
+				throw new IllegalStateException(e);
+			}
+		
+		
 	}
 
 	private Text formatText(String style, String... parts) {
